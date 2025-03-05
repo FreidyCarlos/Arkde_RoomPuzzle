@@ -36,6 +36,28 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aiming")
 	FName FPSCameraSocketName;
 
+protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dash")
+	float DashDistance;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dash")
+	float DashCooldown;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dash")
+	float DashDuration;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* DashMontage;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Animation")
+	bool bIsDashing;
+
+	FTimerHandle DashTimerHandle;
+	FTimerHandle DashCooldownTimerHandle;
+
+	bool bCanDash;
+
 public:
 	// Sets default values for this character's properties
 	ARP_Character();
@@ -51,6 +73,12 @@ protected:
 	virtual void Jump() override;
 
 	virtual void StopJumping() override;
+
+	void StartDash();
+
+	void StopDash();
+
+	void ResetDash();
 
 public:	
 	// Called every frame

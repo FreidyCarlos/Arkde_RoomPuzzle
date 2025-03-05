@@ -3,6 +3,7 @@
 #include "RP_Character.h"
 # include "Camera/CameraComponent.h"
 # include "GameFramework/SpringArmComponent.h"
+# include "GameFramework/Actor.h"
 
 
 // Sets default values
@@ -12,6 +13,10 @@ ARP_Character::ARP_Character()
 	PrimaryActorTick.bCanEverTick = true;
 
 	bUseFirstPersonView = true;
+
+	PrimaryActorTick.bCanEverTick = true;//weas del dash
+	bUseFirstPersonView = true;
+	bCanDash = true;
 
 	FPSCameraSocketName = "SCK_Camera";
 
@@ -25,6 +30,10 @@ ARP_Character::ARP_Character()
 
 	TPSCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TPS_CameraComponent"));
 	TPSCameraComponent->SetupAttachment(SpringArmComponent);
+
+	DashDistance = 3000.0f;
+	DashCooldown = 1.0f;
+	DashDuration = 0.7f;
 }
 
 // Called when the game starts or when spawned
@@ -66,6 +75,45 @@ void ARP_Character::StopJumping()
 	Super::StopJumping();
 }
 
+void ARP_Character::StartDash()
+{
+	if (!bCanDash) return;
+
+	if (GetLastMovementInputVector().IsNearlyZero())
+	{
+		return; // Si no hay movimiento, no permite hacer dash
+	}
+
+	bCanDash = false;
+	bIsDashing = true; // Se activa el Dash
+
+	FVector DashDirection = GetActorForwardVector();
+
+	LaunchCharacter(DashDirection * DashDistance, true, true);
+
+	if (DashMontage)
+	{
+		PlayAnimMontage(DashMontage);
+	}
+
+	GetWorldTimerManager().SetTimer(DashTimerHandle, this, &ARP_Character::StopDash, DashDuration, false);
+	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &ARP_Character::ResetDash, DashCooldown, false);
+}
+
+void ARP_Character::StopDash()
+{
+	if (DashMontage)
+	{
+		StopAnimMontage(DashMontage);
+	}
+	bIsDashing = false;
+}
+
+void ARP_Character::ResetDash()
+{
+	bCanDash = true;
+}
+
 // Called to bind functionality to input
 void ARP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -79,4 +127,7 @@ void ARP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ARP_Character::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ARP_Character::StopJumping);
+
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ARP_Character::StartDash);
+
 }

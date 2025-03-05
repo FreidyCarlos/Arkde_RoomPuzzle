@@ -7,6 +7,7 @@
 #include "RP_Character.generated.h"
 
 class UCameraComponent;
+class USpringArmComponent;
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Character : public ACharacter
@@ -16,9 +17,18 @@ class ARKDE_ROOMPUZZLE_API ARP_Character : public ACharacter
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USpringArmComponent* SpringArmComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* FPSCameraComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UCameraComponent* TPSCameraComponent;
+
 protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aiming")
+	bool bUseFirstPersonView;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aiming")
 	bool bIsLookInversion;

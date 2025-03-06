@@ -122,3 +122,13 @@ void ARP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ARP_Character::StartDash);
 
 }
+
+void ARP_Character::AddKey(FName NewKey)
+{
+	DoorKeys.Add(NewKey);
+}
+
+bool ARP_Character::HasKey(FName KeyTag)
+{
+	return DoorKeys.Contains(KeyTag);
+}

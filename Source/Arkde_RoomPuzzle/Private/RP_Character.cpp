@@ -91,21 +91,12 @@ void ARP_Character::StartDash()
 
 	LaunchCharacter(DashDirection * DashDistance, true, true);
 
-	if (DashMontage)
-	{
-		PlayAnimMontage(DashMontage);
-	}
-
 	GetWorldTimerManager().SetTimer(DashTimerHandle, this, &ARP_Character::StopDash, DashDuration, false);
 	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &ARP_Character::ResetDash, DashCooldown, false);
 }
 
 void ARP_Character::StopDash()
 {
-	if (DashMontage)
-	{
-		StopAnimMontage(DashMontage);
-	}
 	bIsDashing = false;
 }
 

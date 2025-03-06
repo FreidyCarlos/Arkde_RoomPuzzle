@@ -47,9 +47,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dash")
 	float DashDuration;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
-	UAnimMontage* DashMontage;
-
 	UPROPERTY(BlueprintReadOnly, Category = "Animation")
 	bool bIsDashing;
 

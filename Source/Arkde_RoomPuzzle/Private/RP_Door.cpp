@@ -42,6 +42,11 @@ void ARP_Door::BeginPlay()
 
 void ARP_Door::CheckKeyFromPlayer(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (bIsOpen)
+	{
+		return;
+	}
+
 	if (IsValid(OtherActor))
 	{
 		ARP_Character* OverlappedCharacter = Cast<ARP_Character>(OtherActor);
@@ -63,7 +68,10 @@ void ARP_Door::Tick(float DeltaTime)
 
 void ARP_Door::OpenDoor()
 {
-	FRotator NewRotation = FRotator(0.0f, OpenAngle, 0.0f);
-	DoorComponent->SetRelativeRotation(NewRotation);
+// 	FRotator NewRotation = FRotator(0.0f, OpenAngle, 0.0f);
+// 	DoorComponent->SetRelativeRotation(NewRotation);
+
+	bIsOpen = true;
+	BP_OpenDoor();
 }
 

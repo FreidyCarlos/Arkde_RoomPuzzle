@@ -8,6 +8,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "Items/RP_Item.h"
+#include "Engine/Engine.h"
 
 ARP_LaunchPadSwitch::ARP_LaunchPadSwitch()
 {

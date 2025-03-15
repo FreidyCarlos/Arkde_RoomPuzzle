@@ -14,10 +14,6 @@ ARP_LaunchPadSwitch::ARP_LaunchPadSwitch()
 {
 	bIsLaunchPadActive = false;
 
-    MainColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    MainColliderComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-    MainColliderComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-
     ButtonMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ButtonMesh"));
     ButtonMesh->SetupAttachment(MainColliderComponent);
     ButtonMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);

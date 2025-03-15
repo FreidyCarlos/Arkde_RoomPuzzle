@@ -4,6 +4,8 @@
 # include "Camera/CameraComponent.h"
 # include "GameFramework/SpringArmComponent.h"
 # include "GameFramework/Actor.h"
+#include "Components/InputComponent.h"
+#include "Weapons/RP_Weapon.h"
 
 
 // Sets default values
@@ -40,7 +42,7 @@ ARP_Character::ARP_Character()
 void ARP_Character::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	CreateInitialWeapon();
 }
 
 // Called every frame
@@ -48,6 +50,18 @@ void ARP_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ARP_Character::CreateInitialWeapon()
+{
+	if (IsValid(InitialWeaponClass))
+	{
+		CurrentWeapon = GetWorld()->SpawnActor<ARP_Weapon>(InitialWeaponClass, GetActorLocation(), GetActorRotation());
+		if (IsValid(CurrentWeapon))
+		{
+			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		}
+	}
 }
 
 void ARP_Character::MoveForward(float value)
@@ -105,6 +119,22 @@ void ARP_Character::ResetDash()
 	bCanDash = true;
 }
 
+void ARP_Character::StartWeaponAction()
+{
+	if (IsValid(CurrentWeapon))
+	{
+		CurrentWeapon->StartAction();
+	}
+}
+
+void ARP_Character::StopWeaponAction()
+{
+	if (IsValid(CurrentWeapon))
+	{
+		CurrentWeapon->StopAction();
+	}
+}
+
 // Called to bind functionality to input
 void ARP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -120,6 +150,9 @@ void ARP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ARP_Character::StopJumping);
 
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ARP_Character::StartDash);
+
+	PlayerInputComponent->BindAction("WeaponAction", IE_Pressed, this, &ARP_Character::StartWeaponAction);
+	PlayerInputComponent->BindAction("WeaponAction", IE_Released, this, &ARP_Character::StopWeaponAction);
 
 }
 

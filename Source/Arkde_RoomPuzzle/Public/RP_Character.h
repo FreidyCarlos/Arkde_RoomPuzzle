@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class ARP_Weapon;
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Character : public ACharacter
@@ -39,8 +40,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Key")
 	TArray<FName> DoorKeys;
 
-protected:
-
+	//dash
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dash")
 	float DashDistance;
 
@@ -57,6 +57,13 @@ protected:
 	FTimerHandle DashCooldownTimerHandle;
 
 	bool bCanDash;
+
+	//Weapon
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TSubclassOf<ARP_Weapon> InitialWeaponClass;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
+	ARP_Weapon* CurrentWeapon;
 
 public:
 	// Sets default values for this character's properties
@@ -79,6 +86,12 @@ protected:
 	void StopDash();
 
 	void ResetDash();
+
+	void CreateInitialWeapon();
+
+	void StartWeaponAction();
+
+	void StopWeaponAction();
 
 public:	
 	// Called every frame

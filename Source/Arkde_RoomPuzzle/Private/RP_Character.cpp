@@ -6,6 +6,7 @@
 # include "GameFramework/Actor.h"
 #include "Components/InputComponent.h"
 #include "Weapons/RP_Weapon.h"
+#include "GameFramework/Character.h"
 
 
 // Sets default values
@@ -38,6 +39,21 @@ ARP_Character::ARP_Character()
 	DashDuration = 0.7f;
 }
 
+FVector ARP_Character::GetPawnViewLocation() const//CORRIGE EL INICIO DEL LINETRACE VISUAL EN UNREAL
+{
+	if (IsValid(FPSCameraComponent) && bUseFirstPersonView)
+	{
+		return FPSCameraComponent->GetComponentLocation();
+	}
+
+	if (IsValid(TPSCameraComponent) && !bUseFirstPersonView)
+	{
+		return TPSCameraComponent->GetComponentLocation();
+	}
+
+	return Super::GetPawnViewLocation();
+}
+
 // Called when the game starts or when spawned
 void ARP_Character::BeginPlay()
 {
@@ -59,6 +75,7 @@ void ARP_Character::CreateInitialWeapon()
 		CurrentWeapon = GetWorld()->SpawnActor<ARP_Weapon>(InitialWeaponClass, GetActorLocation(), GetActorRotation());
 		if (IsValid(CurrentWeapon))
 		{
+			CurrentWeapon->SetOwner(this);
 			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		}
 	}

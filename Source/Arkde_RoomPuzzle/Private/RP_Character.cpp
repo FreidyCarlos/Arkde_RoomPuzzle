@@ -3,10 +3,8 @@
 #include "RP_Character.h"
 # include "Camera/CameraComponent.h"
 # include "GameFramework/SpringArmComponent.h"
-# include "GameFramework/Actor.h"
 #include "Components/InputComponent.h"
 #include "Weapons/RP_Weapon.h"
-#include "GameFramework/Character.h"
 
 
 // Sets default values
@@ -75,7 +73,7 @@ void ARP_Character::CreateInitialWeapon()
 		CurrentWeapon = GetWorld()->SpawnActor<ARP_Weapon>(InitialWeaponClass, GetActorLocation(), GetActorRotation());
 		if (IsValid(CurrentWeapon))
 		{
-			CurrentWeapon->SetOwner(this);
+			CurrentWeapon->SetCharacterOwner(this);
 			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		}
 	}

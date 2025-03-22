@@ -7,6 +7,7 @@
 #include "RP_Weapon.generated.h"
 
 class UDamageType;
+class ACharacter;
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Weapon : public AActor
@@ -24,6 +25,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;
+
+	ACharacter* CurrentOwnerCharacter;
 
 protected:
 	// Called when the game starts or when spawned
@@ -45,4 +48,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void StopAction();
 
+	UFUNCTION(BlueprintCallable)
+	void SetCharacterOwner(ACharacter* NewOwner);
 };

@@ -6,6 +6,8 @@
 #include "Weapons/RP_Weapon.h"
 #include "RP_Rifle.generated.h"
 
+class UParticleSystem;
+
 /**
  * 
  */
@@ -25,6 +27,21 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LineTrace")
 	float  TraceLenght;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	FName MuzzleSocketName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	FName TraceParamName;
+
+	UPROPERTY(EditDefaultsOnly ,BlueprintReadOnly, Category = "Effects")
+	UParticleSystem* MuzzleEffect;
+
+	UPROPERTY(EditDefaultsOnly ,BlueprintReadOnly, Category = "Effects")
+	UParticleSystem* ImpactEffect;
+
+	UPROPERTY(EditDefaultsOnly ,BlueprintReadOnly, Category = "Effects")
+	UParticleSystem* TraceEffect;
 
 protected:
 

@@ -9,6 +9,7 @@
 class UStaticMeshComponent;
 class UProjectileMovementComponent;
 class USphereComponent;
+class UParticleSystem;
 
 
 UCLASS()
@@ -27,7 +28,23 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
-	
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	float ExplosionDelay = 2.5f; 
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	float ExplosionRadius = 130.0f; 
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	float ExplosionDamage = 70.0f;
+
+	FTimerHandle ExplosionTimerHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage")
+	TSubclassOf<UDamageType> DamageType;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	UParticleSystem* ImpactEffect;
+
 public:	
 	// Sets default values for this actor's properties
 	ARP_Projectile();
@@ -35,6 +52,11 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	void Explode(); 
 
 public:	
 	// Called every frame

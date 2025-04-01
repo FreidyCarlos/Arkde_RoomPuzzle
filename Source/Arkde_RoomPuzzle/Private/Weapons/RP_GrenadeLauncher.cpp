@@ -15,17 +15,24 @@ void ARP_GrenadeLauncher::StartAction()
 {
 	Super::StartAction();
 
-	if (IsValid(CurrentOwnerCharacter))
-	{
-		USkeletalMeshComponent* CharacterMeshComponent = CurrentOwnerCharacter->GetMesh();
-		if (IsValid(CharacterMeshComponent))
-		{
-			FVector MuzzleSocketLocation = CharacterMeshComponent->GetSocketLocation(MuzzleSocketName);
-			FRotator MuzzleSocketRotation = CharacterMeshComponent->GetSocketRotation(MuzzleSocketName);
+    if (IsValid(CurrentOwnerCharacter))
+    {
+        FVector EyeLocation;
+        FRotator EyeRotation;
 
-			ARP_Projectile* CurrentProjectile = GetWorld()->SpawnActor<ARP_Projectile>(ProjectileClass, MuzzleSocketLocation, MuzzleSocketRotation);
-		}
-	}
+        CurrentOwnerCharacter->GetActorEyesViewPoint(EyeLocation, EyeRotation);
+
+        FVector ShotDirection = EyeRotation.Vector();
+
+        USkeletalMeshComponent* CharacterMeshComponent = CurrentOwnerCharacter->GetMesh();
+        if (IsValid(CharacterMeshComponent))
+        {
+            FVector MuzzleSocketLocation = CharacterMeshComponent->GetSocketLocation(MuzzleSocketName);
+            FRotator SpawnRotation = ShotDirection.Rotation();
+
+            ARP_Projectile* CurrentProjectile = GetWorld()->SpawnActor<ARP_Projectile>(ProjectileClass, MuzzleSocketLocation, SpawnRotation);
+        }
+    }
 }
 
 void ARP_GrenadeLauncher::StopAction()

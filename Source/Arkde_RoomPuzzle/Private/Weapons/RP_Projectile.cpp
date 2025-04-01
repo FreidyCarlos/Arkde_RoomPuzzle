@@ -34,29 +34,31 @@ ARP_Projectile::ARP_Projectile()
 void ARP_Projectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// Con esto se configura la explosion con un delay
-	GetWorld()->GetTimerManager().SetTimer(ExplosionTimerHandle, this, &ARP_Projectile::Explode, ExplosionDelay, false);
+
+	GetWorld()->GetTimerManager().SetTimer(ExplosionTimerHandle, this, &ARP_Projectile::Explode, ExplosionDelay, false);//esto es para que explote aun asi no colisione con nada
 }
 
 void ARP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (OtherActor && OtherActor != this)
 	{
-		FVector ImpactPoint = Hit.ImpactPoint;
-		FRotator ImpactRotation = Hit.ImpactNormal.Rotation();
-
-		if (ImpactEffect != nullptr)
+		if (OtherActor->IsA(TargetActorClass))
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, ImpactPoint, ImpactRotation);
+			Explode();
 		}
-
-		Explode();
 	}
 }
 
 void ARP_Projectile::Explode()
 {
+	FVector ImpactPoint = GetActorLocation();
+	FRotator ImpactRotation = FRotator::ZeroRotator;
+
+	if (ImpactEffect != nullptr)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, ImpactPoint, ImpactRotation);
+	}
+
 	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 3.0f);
 
 	TArray<AActor*> IgnoredActors;
@@ -83,6 +85,5 @@ void ARP_Projectile::Explode()
 void ARP_Projectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 

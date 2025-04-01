@@ -39,6 +39,9 @@ protected:
 
 	FTimerHandle ExplosionTimerHandle;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<AActor> TargetActorClass;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage")
 	TSubclassOf<UDamageType> DamageType;
 

@@ -12,7 +12,7 @@
 ARP_Rifle::ARP_Rifle()
 {
 	TraceLenght = 10000.0f;
-	MuzzleSocketName = "SCT_Muzzle";
+	MuzzleSocketName = "SCK_Muzzle";
 }
 
 void ARP_Rifle::StartAction()

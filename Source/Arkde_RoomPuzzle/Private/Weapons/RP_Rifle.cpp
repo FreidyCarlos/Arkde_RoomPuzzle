@@ -19,6 +19,28 @@ void ARP_Rifle::StartAction()
 {
 	Super::StartAction();
 
+	if (bIsAutomatic)
+	{
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_AutoFire, this, &ARP_Rifle::HandleAutoFire, 0.1f, true);
+	}
+	else
+	{
+		HandleAutoFire();
+	}
+}
+
+void ARP_Rifle::StopAction()
+{
+	Super::StopAction();
+
+	if (bIsAutomatic)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_AutoFire);
+	}
+}
+
+void ARP_Rifle::HandleAutoFire()
+{
 	AActor* CurrentOwner = GetOwner();
 	if (IsValid(CurrentOwner))
 	{
@@ -81,9 +103,4 @@ void ARP_Rifle::StartAction()
 			}
 		}
 	}
-}
-
-void ARP_Rifle::StopAction()
-{
-	Super::StopAction();
 }

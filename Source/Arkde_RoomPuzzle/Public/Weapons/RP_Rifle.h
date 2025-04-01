@@ -43,10 +43,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly ,BlueprintReadOnly, Category = "Effects")
 	UParticleSystem* TraceEffect;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	bool bIsAutomatic;
+
+	FTimerHandle TimerHandle_AutoFire;
+
 protected:
 
 	virtual void StartAction() override;
 
 	virtual void StopAction() override;
+
+	void HandleAutoFire();
 
 };

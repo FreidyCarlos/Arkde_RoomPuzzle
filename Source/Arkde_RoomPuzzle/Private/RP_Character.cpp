@@ -1,10 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "RP_Character.h"
-# include "Camera/CameraComponent.h"
-# include "GameFramework/SpringArmComponent.h"
+#include "Arkde_RoomPuzzle/Arkde_RoomPuzzle.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Components/InputComponent.h"
 #include "Weapons/RP_Weapon.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
+#include "Components/CapsuleComponent.h"
 
 
 // Sets default values
@@ -20,6 +25,7 @@ ARP_Character::ARP_Character()
 	bCanDash = true;
 
 	FPSCameraSocketName = "SCK_Camera";
+	MeleeSockerName = "SCK_Melee";
 
 	FPSCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FPS_CameraComponent"));
 	FPSCameraComponent->bUsePawnControlRotation = true;
@@ -35,6 +41,11 @@ ARP_Character::ARP_Character()
 	DashDistance = 3000.0f;
 	DashCooldown = 1.0f;
 	DashDuration = 0.7f;
+
+	MeleeDetectorComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("MeleeDetectorComponent"));
+	MeleeDetectorComponent->SetupAttachment(GetMesh(), MeleeSockerName);
+	MeleeDetectorComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+	MeleeDetectorComponent->SetCollisionResponseToChannel(COLLISION_ENEMY, ECR_Overlap);
 }
 
 FVector ARP_Character::GetPawnViewLocation() const//CORRIGE EL INICIO DEL LINETRACE VISUAL EN UNREAL
@@ -56,7 +67,16 @@ FVector ARP_Character::GetPawnViewLocation() const//CORRIGE EL INICIO DEL LINETR
 void ARP_Character::BeginPlay()
 {
 	Super::BeginPlay();
+	InitializeReferences();
 	CreateInitialWeapon();
+}
+
+void ARP_Character::InitializeReferences()
+{
+	if (IsValid(GetMesh()))
+	{
+		MyAnimInstance = GetMesh()->GetAnimInstance();
+	}
 }
 
 // Called every frame
@@ -150,6 +170,19 @@ void ARP_Character::StopWeaponAction()
 	}
 }
 
+void ARP_Character::StartMelee()
+{
+	if (IsValid(MyAnimInstance) && IsValid(MeleeMontage))
+	{
+		MyAnimInstance->Montage_Play(MeleeMontage);
+	}
+}
+
+void ARP_Character::StopMelee()
+{
+	
+}
+
 // Called to bind functionality to input
 void ARP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -169,6 +202,8 @@ void ARP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("WeaponAction", IE_Pressed, this, &ARP_Character::StartWeaponAction);
 	PlayerInputComponent->BindAction("WeaponAction", IE_Released, this, &ARP_Character::StopWeaponAction);
 
+	PlayerInputComponent->BindAction("Melee", IE_Pressed, this, &ARP_Character::StartMelee);
+	PlayerInputComponent->BindAction("Melee", IE_Released, this, &ARP_Character::StopMelee);
 }
 
 void ARP_Character::AddKey(FName NewKey)

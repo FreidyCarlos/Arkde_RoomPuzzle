@@ -2,6 +2,7 @@
 
 
 #include "Weapons/RP_Projectile.h"
+#include "Arkde_RoomPuzzle/Arkde_RoomPuzzle.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -42,10 +43,10 @@ void ARP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor
 {
 	if (OtherActor && OtherActor != this)
 	{
-		if (OtherComp->GetCollisionObjectType() == ECC_Pawn)
-        {
-            Explode();
-        }
+		if (OtherComp->GetCollisionObjectType() == COLLISION_ENEMY)
+		{
+			Explode();
+		}
 	}
 }
 

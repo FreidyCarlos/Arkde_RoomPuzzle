@@ -42,10 +42,10 @@ void ARP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor
 {
 	if (OtherActor && OtherActor != this)
 	{
-		if (OtherActor->IsA(TargetActorClass))
-		{
-			Explode();
-		}
+		if (OtherComp->GetCollisionObjectType() == ECC_Pawn)
+        {
+            Explode();
+        }
 	}
 }
 

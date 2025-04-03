@@ -10,6 +10,7 @@
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -38,7 +39,7 @@ ARP_Character::ARP_Character()
 	TPSCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TPS_CameraComponent"));
 	TPSCameraComponent->SetupAttachment(SpringArmComponent);
 
-	DashDistance = 3000.0f;
+	DashDistance = 2000.0f;
 	DashCooldown = 1.0f;
 	DashDuration = 0.7f;
 
@@ -46,6 +47,11 @@ ARP_Character::ARP_Character()
 	MeleeDetectorComponent->SetupAttachment(GetMesh(), MeleeSockerName);
 	MeleeDetectorComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 	MeleeDetectorComponent->SetCollisionResponseToChannel(COLLISION_ENEMY, ECR_Overlap);
+	MeleeDetectorComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	MeleeDamage = 10.0f;
+
+	bCanUseWeapon = true;//para disparar aun asi no haya hecho un ataque melee
 }
 
 FVector ARP_Character::GetPawnViewLocation() const//CORRIGE EL INICIO DEL LINETRACE VISUAL EN UNREAL
@@ -69,6 +75,7 @@ void ARP_Character::BeginPlay()
 	Super::BeginPlay();
 	InitializeReferences();
 	CreateInitialWeapon();
+	MeleeDetectorComponent->OnComponentBeginOverlap.AddDynamic(this, &ARP_Character::MakeMeleeDamage);
 }
 
 void ARP_Character::InitializeReferences()
@@ -156,6 +163,11 @@ void ARP_Character::ResetDash()
 
 void ARP_Character::StartWeaponAction()
 {
+	if (!bCanUseWeapon)
+	{
+		return;
+	}
+
 	if (IsValid(CurrentWeapon))
 	{
 		CurrentWeapon->StartAction();
@@ -164,6 +176,11 @@ void ARP_Character::StartWeaponAction()
 
 void ARP_Character::StopWeaponAction()
 {
+	if (!bCanUseWeapon)
+	{
+		return;
+	}
+
 	if (IsValid(CurrentWeapon))
 	{
 		CurrentWeapon->StopAction();
@@ -172,15 +189,30 @@ void ARP_Character::StopWeaponAction()
 
 void ARP_Character::StartMelee()
 {
+	if (bIsDoingMelee)
+	{
+		return;
+	}
+
 	if (IsValid(MyAnimInstance) && IsValid(MeleeMontage))
 	{
 		MyAnimInstance->Montage_Play(MeleeMontage);
 	}
+
+	SetMeleeState(true);
 }
 
 void ARP_Character::StopMelee()
 {
 	
+}
+
+void ARP_Character::MakeMeleeDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (IsValid(OtherActor))
+	{
+		UGameplayStatics::ApplyPointDamage(OtherActor, MeleeDamage, SweepResult.Location, SweepResult, GetInstigatorController(), this, nullptr);
+	}
 }
 
 // Called to bind functionality to input
@@ -214,4 +246,15 @@ void ARP_Character::AddKey(FName NewKey)
 bool ARP_Character::HasKey(FName KeyTag)
 {
 	return DoorKeys.Contains(KeyTag);
+}
+
+void ARP_Character::SetMeleeDetectorCollision(ECollisionEnabled::Type NewCollisionState)
+{
+	MeleeDetectorComponent->SetCollisionEnabled(NewCollisionState);
+}
+
+void ARP_Character::SetMeleeState(bool NewState)
+{
+	bIsDoingMelee = NewState;
+	bCanUseWeapon = !NewState;
 }

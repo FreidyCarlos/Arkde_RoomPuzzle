@@ -26,7 +26,11 @@ ARP_Character::ARP_Character()
 	bCanDash = true;
 
 	FPSCameraSocketName = "SCK_Camera";
-	MeleeSockerName = "SCK_Melee";
+	MeleeSocketName = "SCK_Melee";
+	MeleeSocketName2 = "SCK_Melee2";
+
+	MaxComboMultiplier = 4.0f;
+	CurrentComboMultiplier = 1.0f;
 
 	FPSCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FPS_CameraComponent"));
 	FPSCameraComponent->bUsePawnControlRotation = true;
@@ -44,10 +48,16 @@ ARP_Character::ARP_Character()
 	DashDuration = 0.7f;
 
 	MeleeDetectorComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("MeleeDetectorComponent"));
-	MeleeDetectorComponent->SetupAttachment(GetMesh(), MeleeSockerName);
+	MeleeDetectorComponent->SetupAttachment(GetMesh(), MeleeSocketName);
 	MeleeDetectorComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 	MeleeDetectorComponent->SetCollisionResponseToChannel(COLLISION_ENEMY, ECR_Overlap);
 	MeleeDetectorComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	MeleeDetectorComponent2 = CreateDefaultSubobject<UCapsuleComponent>(TEXT("MeleeDetectorComponent2"));
+	MeleeDetectorComponent2->SetupAttachment(GetMesh(), MeleeSocketName2);
+	MeleeDetectorComponent2->SetCollisionResponseToAllChannels(ECR_Ignore);
+	MeleeDetectorComponent2->SetCollisionResponseToChannel(COLLISION_ENEMY, ECR_Overlap);
+	MeleeDetectorComponent2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	MeleeDamage = 10.0f;
 
@@ -76,6 +86,7 @@ void ARP_Character::BeginPlay()
 	InitializeReferences();
 	CreateInitialWeapon();
 	MeleeDetectorComponent->OnComponentBeginOverlap.AddDynamic(this, &ARP_Character::MakeMeleeDamage);
+	MeleeDetectorComponent2->OnComponentBeginOverlap.AddDynamic(this, &ARP_Character::MakeMeleeDamage);
 }
 
 void ARP_Character::InitializeReferences()
@@ -189,14 +200,45 @@ void ARP_Character::StopWeaponAction()
 
 void ARP_Character::StartMelee()
 {
-	if (bIsDoingMelee)
+	if (bIsDoingMelee && !bCanMakeCombos)
 	{
 		return;
 	}
 
-	if (IsValid(MyAnimInstance) && IsValid(MeleeMontage))
+	if (bCanMakeCombos)
 	{
-		MyAnimInstance->Montage_Play(MeleeMontage);
+		if (bIsDoingMelee)
+		{
+			if (bIsComboEnable)
+			{
+				if (CurrentComboMultiplier < MaxComboMultiplier)
+				{
+					CurrentComboMultiplier++;
+					SetComboEnable(false);
+				}
+				else {
+					return;
+				}
+			}
+			else {
+				return;
+			}
+		}
+	}
+
+	if (IsValid(MyAnimInstance))
+	{
+		if (CurrentComboMultiplier == MaxComboMultiplier && IsValid(MeleeMontage3))
+		{
+			MyAnimInstance->Montage_Play(MeleeMontage3);
+		}
+		else if (CurrentComboMultiplier >= 2 && IsValid(MeleeMontage2))
+		{
+			MyAnimInstance->Montage_Play(MeleeMontage2);
+		}else if (IsValid(MeleeMontage))
+		{
+			MyAnimInstance->Montage_Play(MeleeMontage);
+		}
 	}
 
 	SetMeleeState(true);
@@ -211,7 +253,7 @@ void ARP_Character::MakeMeleeDamage(UPrimitiveComponent* OverlappedComponent, AA
 {
 	if (IsValid(OtherActor))
 	{
-		UGameplayStatics::ApplyPointDamage(OtherActor, MeleeDamage, SweepResult.Location, SweepResult, GetInstigatorController(), this, nullptr);
+		UGameplayStatics::ApplyPointDamage(OtherActor, MeleeDamage * CurrentComboMultiplier, SweepResult.Location, SweepResult, GetInstigatorController(), this, nullptr);
 	}
 }
 
@@ -251,10 +293,22 @@ bool ARP_Character::HasKey(FName KeyTag)
 void ARP_Character::SetMeleeDetectorCollision(ECollisionEnabled::Type NewCollisionState)
 {
 	MeleeDetectorComponent->SetCollisionEnabled(NewCollisionState);
+	MeleeDetectorComponent2->SetCollisionEnabled(NewCollisionState);
 }
 
 void ARP_Character::SetMeleeState(bool NewState)
 {
 	bIsDoingMelee = NewState;
 	bCanUseWeapon = !NewState;
+}
+
+void ARP_Character::SetComboEnable(bool NewState)
+{
+	bIsComboEnable = NewState;
+}
+
+void ARP_Character::ResetCombo()
+{
+	SetComboEnable(false);
+	CurrentComboMultiplier = 1.0f;
 }

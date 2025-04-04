@@ -31,6 +31,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCapsuleComponent* MeleeDetectorComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UCapsuleComponent* MeleeDetectorComponent2;
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aiming")
@@ -43,13 +46,29 @@ protected:
 	FName FPSCameraSocketName;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Melee")
-	FName MeleeSockerName;
+	FName MeleeSocketName;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Melee")
+	FName MeleeSocketName2;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Melee")
 	float MeleeDamage;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Melee")
 	bool bIsDoingMelee;
+
+	//combos
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Melee")
+	bool bCanMakeCombos;
+
+	UPROPERTY(BlueprintReadOnly, Category = " Melee")
+	bool bIsComboEnable;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Melee", meta = (EditCondition = bCanMakeCombos, ClampMin = 1.0, UIMin = 1.0))
+	float MaxComboMultiplier;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Melee", meta = (EditCondition = bCanMakeCombos, ClampMin = 1.0, UIMin = 1.0))
+	float CurrentComboMultiplier;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	bool bCanUseWeapon;
@@ -87,6 +106,12 @@ protected:
 	UAnimMontage* MeleeMontage;
 
 	UAnimInstance* MyAnimInstance;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* MeleeMontage2;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* MeleeMontage3;
 
 public:
 	// Sets default values for this character's properties
@@ -143,4 +168,10 @@ public:
 	void SetMeleeDetectorCollision(ECollisionEnabled::Type NewCollisionState);
 
 	void SetMeleeState(bool NewState);
+
+	UFUNCTION(BlueprintCallable)
+	void SetComboEnable(bool NewState);
+
+	UFUNCTION(BlueprintCallable)
+	void ResetCombo();
 };

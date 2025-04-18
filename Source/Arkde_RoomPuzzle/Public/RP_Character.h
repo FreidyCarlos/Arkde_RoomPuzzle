@@ -120,6 +120,10 @@ protected:
 
 	ARP_GameMode* GameModeReference;
 
+	//Spectating Camera
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Over")
+	bool bHasToDestroy;
+
 public:
 	// Sets default values for this character's properties
 	ARP_Character();
@@ -184,4 +188,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ResetCombo();
+
+	bool HasToDestoy() { return bHasToDestroy; };
 };

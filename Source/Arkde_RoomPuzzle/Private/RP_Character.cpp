@@ -11,6 +11,7 @@
 #include "Animation/AnimMontage.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/RP_HealthComponent.h"
 
 
 // Sets default values
@@ -62,6 +63,9 @@ ARP_Character::ARP_Character()
 	MeleeDamage = 10.0f;
 
 	bCanUseWeapon = true;//para disparar aun asi no haya hecho un ataque melee
+
+	HealthComponent = CreateDefaultSubobject<URP_HealthComponent>(TEXT("HealtComponent"));
+
 }
 
 FVector ARP_Character::GetPawnViewLocation() const//CORRIGE EL INICIO DEL LINETRACE VISUAL EN UNREAL

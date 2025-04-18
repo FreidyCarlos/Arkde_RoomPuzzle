@@ -11,6 +11,7 @@ class USpringArmComponent;
 class ARP_Weapon;
 class UAnimMontage;
 class UAnimInstance;
+class URP_HealthComponent;
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Character : public ACharacter
@@ -33,6 +34,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCapsuleComponent* MeleeDetectorComponent2;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	URP_HealthComponent* HealthComponent;
 
 protected:
 

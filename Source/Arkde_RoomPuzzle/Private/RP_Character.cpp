@@ -12,6 +12,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/RP_HealthComponent.h"
+#include "Core/RP_GameMode.h"
 
 
 // Sets default values
@@ -91,6 +92,8 @@ void ARP_Character::BeginPlay()
 	CreateInitialWeapon();
 	MeleeDetectorComponent->OnComponentBeginOverlap.AddDynamic(this, &ARP_Character::MakeMeleeDamage);
 	MeleeDetectorComponent2->OnComponentBeginOverlap.AddDynamic(this, &ARP_Character::MakeMeleeDamage);
+
+	HealthComponent->OnHealthChangeDelegate.AddDynamic(this, &ARP_Character::OnHealthChange);
 }
 
 void ARP_Character::InitializeReferences()
@@ -99,6 +102,8 @@ void ARP_Character::InitializeReferences()
 	{
 		MyAnimInstance = GetMesh()->GetAnimInstance();
 	}
+
+	GameModeReference = Cast<ARP_GameMode>(GetWorld()->GetAuthGameMode());
 }
 
 // Called every frame
@@ -258,6 +263,17 @@ void ARP_Character::MakeMeleeDamage(UPrimitiveComponent* OverlappedComponent, AA
 	if (IsValid(OtherActor))
 	{
 		UGameplayStatics::ApplyPointDamage(OtherActor, MeleeDamage * CurrentComboMultiplier, SweepResult.Location, SweepResult, GetInstigatorController(), this, nullptr);
+	}
+}
+
+void ARP_Character::OnHealthChange(URP_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (HealthComponent->IsDead())
+	{
+		if (IsValid(GameModeReference))
+		{
+			GameModeReference->GameOver(this);
+		}
 	}
 }
 

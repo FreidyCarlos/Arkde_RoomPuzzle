@@ -12,6 +12,7 @@ class ARP_Weapon;
 class UAnimMontage;
 class UAnimInstance;
 class URP_HealthComponent;
+class ARP_GameMode;
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Character : public ACharacter
@@ -117,6 +118,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
 	UAnimMontage* MeleeMontage3;
 
+	ARP_GameMode* GameModeReference;
+
 public:
 	// Sets default values for this character's properties
 	ARP_Character();
@@ -155,6 +158,9 @@ protected:
 
 	UFUNCTION()
 	void MakeMeleeDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnHealthChange(URP_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 public:	
 	// Called every frame

@@ -30,12 +30,22 @@ void URP_HealthComponent::BeginPlay()
 
 void URP_HealthComponent::TakingDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (Damage <= 0.0f)
+	if (Damage <= 0.0f || bIsDead)
 	{
 		return;
 	}
 
 	Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);
 
-	UE_LOG(LogTemp, Log, TEXT("My Health is: %s"), *FString::SanitizeFloat(Health));
+	if (Health == 0.0f)
+	{
+		bIsDead = true;
+	}
+
+	OnHealthChangeDelegate.Broadcast(this, DamagedActor, Damage, DamageType, InstigatedBy, DamageCauser);
+
+	if (bDebug)
+	{
+		UE_LOG(LogTemp, Log, TEXT("My Health is: %s"), *FString::SanitizeFloat(Health));
+	}
 }

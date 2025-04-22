@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/RP_HealthComponent.h"
 #include "Core/RP_GameMode.h"
+#include "Components/RP_BurnComponent.h"
 
 
 // Sets default values
@@ -67,6 +68,7 @@ ARP_Character::ARP_Character()
 
 	HealthComponent = CreateDefaultSubobject<URP_HealthComponent>(TEXT("HealtComponent"));
 
+	BurnComponent = CreateDefaultSubobject<URP_BurnComponent>(TEXT("BurnComponent"));
 }
 
 FVector ARP_Character::GetPawnViewLocation() const//CORRIGE EL INICIO DEL LINETRACE VISUAL EN UNREAL

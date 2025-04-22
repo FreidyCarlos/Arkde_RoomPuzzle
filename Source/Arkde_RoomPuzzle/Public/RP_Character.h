@@ -13,6 +13,7 @@ class UAnimMontage;
 class UAnimInstance;
 class URP_HealthComponent;
 class ARP_GameMode;
+class URP_BurnComponent;
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Character : public ACharacter
@@ -123,6 +124,9 @@ protected:
 	//Spectating Camera
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Over")
 	bool bHasToDestroy;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Status Effects")
+	URP_BurnComponent* BurnComponent;
 
 public:
 	// Sets default values for this character's properties

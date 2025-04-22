@@ -91,7 +91,7 @@ void ARP_LandMine::OnExplosionTriggerOverlap(UPrimitiveComponent* OverlappedComp
 
 void ARP_LandMine::OnMineHealthChanged(URP_HealthComponent* OwningHealthComp, AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (OwningHealthComp->IsDead() && !bHasExploded)
+	if (OwningHealthComp)
 	{
 		Explode();
 	}

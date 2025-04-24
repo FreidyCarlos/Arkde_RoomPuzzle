@@ -298,7 +298,9 @@ void ARP_Character::StartUltimate()
 		if (IsValid(MyAnimInstance) && IsValid(UltimateMontage))
 		{
 			GetCharacterMovement()->MaxWalkSpeed = 0.0f;
-			const float StartUltimateMontageDuration = MyAnimInstance->Montage_Play(UltimateMontage);
+			MyAnimInstance->Montage_Play(UltimateMontage, UltimatePlayRate);
+			const float RawLength = UltimateMontage->GetPlayLength();
+			const float StartUltimateMontageDuration = RawLength / UltimatePlayRate;
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle_BeginUltimateBehaviour, this, &ARP_Character::BeginUltimateBehaviour, StartUltimateMontageDuration, false);
 		}
 		else {

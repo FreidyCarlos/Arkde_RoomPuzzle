@@ -14,6 +14,7 @@
 #include "Components/RP_HealthComponent.h"
 #include "Core/RP_GameMode.h"
 #include "Components/RP_BurnComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 // Sets default values
@@ -69,6 +70,16 @@ ARP_Character::ARP_Character()
 	HealthComponent = CreateDefaultSubobject<URP_HealthComponent>(TEXT("HealtComponent"));
 
 	BurnComponent = CreateDefaultSubobject<URP_BurnComponent>(TEXT("BurnComponent"));
+
+	bUltimateWithTick = true;
+	MaxUltimateXP = 100.0f;
+	MaxUltimateDuration = 10.0f;
+	UltimateFrequency = 0.5f;
+
+	UltimateWalkSpeed = 1000.0f;
+	UltimatePlayRate = 2.0f;
+	PlayRate = 1.0f;
+	UltimateShotFrequency = 0.25f;
 }
 
 FVector ARP_Character::GetPawnViewLocation() const//CORRIGE EL INICIO DEL LINETRACE VISUAL EN UNREAL
@@ -96,6 +107,8 @@ void ARP_Character::BeginPlay()
 	MeleeDetectorComponent2->OnComponentBeginOverlap.AddDynamic(this, &ARP_Character::MakeMeleeDamage);
 
 	HealthComponent->OnHealthChangeDelegate.AddDynamic(this, &ARP_Character::OnHealthChange);
+
+	NormalWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 }
 
 void ARP_Character::InitializeReferences()
@@ -113,6 +126,10 @@ void ARP_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bIsUsingUltimate && bUltimateWithTick)
+	{
+		UpdateUltimateDuration(DeltaTime);
+	}
 }
 
 void ARP_Character::CreateInitialWeapon()
@@ -193,6 +210,11 @@ void ARP_Character::StartWeaponAction()
 	if (IsValid(CurrentWeapon))
 	{
 		CurrentWeapon->StartAction();
+
+		if (bIsUsingUltimate)
+		{
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_AutomaticShoot , CurrentWeapon, &ARP_Weapon::StartAction, UltimateShotFrequency, true);
+		}
 	}
 }
 
@@ -206,6 +228,11 @@ void ARP_Character::StopWeaponAction()
 	if (IsValid(CurrentWeapon))
 	{
 		CurrentWeapon->StopAction();
+
+		if (bIsUsingUltimate)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(TimerHandle_AutomaticShoot);
+		}
 	}
 }
 
@@ -241,14 +268,14 @@ void ARP_Character::StartMelee()
 	{
 		if (CurrentComboMultiplier == MaxComboMultiplier && IsValid(MeleeMontage3))
 		{
-			MyAnimInstance->Montage_Play(MeleeMontage3);
+			MyAnimInstance->Montage_Play(MeleeMontage3, PlayRate);
 		}
 		else if (CurrentComboMultiplier >= 2 && IsValid(MeleeMontage2))
 		{
-			MyAnimInstance->Montage_Play(MeleeMontage2);
+			MyAnimInstance->Montage_Play(MeleeMontage2, PlayRate);
 		}else if (IsValid(MeleeMontage))
 		{
-			MyAnimInstance->Montage_Play(MeleeMontage);
+			MyAnimInstance->Montage_Play(MeleeMontage, PlayRate);
 		}
 	}
 
@@ -258,6 +285,33 @@ void ARP_Character::StartMelee()
 void ARP_Character::StopMelee()
 {
 	
+}
+
+void ARP_Character::StartUltimate()
+{
+	if (bCanUseUltimate && !bIsUsingUltimate)
+	{
+		CurrentUltimateDuration = MaxUltimateDuration;
+
+		bCanUseUltimate = false;
+
+		if (IsValid(MyAnimInstance) && IsValid(UltimateMontage))
+		{
+			GetCharacterMovement()->MaxWalkSpeed = 0.0f;
+			const float StartUltimateMontageDuration = MyAnimInstance->Montage_Play(UltimateMontage);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_BeginUltimateBehaviour, this, &ARP_Character::BeginUltimateBehaviour, StartUltimateMontageDuration, false);
+		}
+		else {
+			BeginUltimateBehaviour();
+		}
+
+		BP_StartUltimate();
+	}
+}
+
+void ARP_Character::StopUltimate() 
+{
+
 }
 
 void ARP_Character::MakeMeleeDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -300,6 +354,9 @@ void ARP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Melee", IE_Pressed, this, &ARP_Character::StartMelee);
 	PlayerInputComponent->BindAction("Melee", IE_Released, this, &ARP_Character::StopMelee);
+
+	PlayerInputComponent->BindAction("Ultimate", IE_Pressed, this, &ARP_Character::StartUltimate);
+	PlayerInputComponent->BindAction("Ultimate", IE_Released, this, &ARP_Character::StopUltimate);
 }
 
 void ARP_Character::AddKey(FName NewKey)
@@ -333,4 +390,61 @@ void ARP_Character::ResetCombo()
 {
 	SetComboEnable(false);
 	CurrentComboMultiplier = 1.0f;
+}
+
+void ARP_Character::GainUltimateXP(float XPGained)
+{
+	if (bCanUseUltimate || bIsUsingUltimate)
+	{
+		return;
+	}
+
+	CurrentUltimateXP = FMath::Clamp(CurrentUltimateXP + XPGained, 0.0f, MaxUltimateXP);
+
+	if (CurrentUltimateXP == MaxUltimateXP)
+	{
+		bCanUseUltimate = true;
+	}
+
+	BP_GainUltimateXP(XPGained);
+}
+
+void ARP_Character::UpdateUltimateDuration(float Value)
+{
+	CurrentUltimateDuration = FMath::Clamp(CurrentUltimateDuration - Value, 0.0f, MaxUltimateDuration);
+	BP_UpdateUltimateDuration(Value);
+
+	if (CurrentUltimateDuration == 0.0f)
+	{
+		bIsUsingUltimate = false;
+		PlayRate = 1.0f;
+
+		GetCharacterMovement()->MaxWalkSpeed = NormalWalkSpeed;
+		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_AutomaticShoot);
+
+		if (!bUltimateWithTick)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Ultimate);
+		}
+
+		BP_StopUltimate();
+	}
+}
+
+void ARP_Character::UpdateUltimateDurationWithTimer()
+{
+	UpdateUltimateDuration(UltimateFrequency);
+}
+
+void ARP_Character::BeginUltimateBehaviour()
+{
+	bIsUsingUltimate = true;
+
+	GetCharacterMovement()->MaxWalkSpeed = UltimateWalkSpeed;
+	PlayRate = UltimatePlayRate;
+
+	if (!bUltimateWithTick)
+	{
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_Ultimate, this, &ARP_Character::UpdateUltimateDurationWithTimer, UltimateFrequency, true);
+	}
 }

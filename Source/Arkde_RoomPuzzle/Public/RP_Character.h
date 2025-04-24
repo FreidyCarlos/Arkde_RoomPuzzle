@@ -128,6 +128,55 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Status Effects")
 	URP_BurnComponent* BurnComponent;
 
+	//Ultimate
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ultimate", meta = (ClampMin = 0.0, UIMin = 0.0))
+	float MaxUltimateXP;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ultimate")
+	float CurrentUltimateXP;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ultimate")
+	bool bCanUseUltimate;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ultimate")
+	bool bIsUsingUltimate;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ultimate|Time", meta = (ClampMin = 0.0, UIMin = 0.0))
+	float MaxUltimateDuration;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ultimate|Time")
+	float CurrentUltimateDuration;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ultimate")
+	bool bUltimateWithTick;
+
+	FTimerHandle TimerHandle_Ultimate;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ultimate|Time")
+	float UltimateFrequency;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ultimate|Abilities", meta = (ClampMin = 0.0, UIMin = 0.0))
+	float UltimateWalkSpeed;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ultimate|Abilities")
+	float NormalWalkSpeed;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ultimate|Abilities", meta = (ClampMin = 0.0, UIMin = 0.0))
+	float UltimatePlayRate;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ultimate|Abilities")
+	float PlayRate;
+
+	FTimerHandle TimerHandle_AutomaticShoot;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ultimate|Abilities", meta = (ClampMin = 0.0, UIMin = 0.0))
+	float UltimateShotFrequency;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* UltimateMontage;
+
+	FTimerHandle TimerHandle_BeginUltimateBehaviour;
+
 public:
 	// Sets default values for this character's properties
 	ARP_Character();
@@ -164,6 +213,10 @@ protected:
 
 	void StopMelee();
 
+	void StartUltimate();
+
+	void StopUltimate();
+
 	UFUNCTION()
 	void MakeMeleeDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -194,4 +247,27 @@ public:
 	void ResetCombo();
 
 	bool HasToDestoy() { return bHasToDestroy; };
+
+	UFUNCTION(BlueprintCallable)
+	void GainUltimateXP(float XPGained);
+
+	void UpdateUltimateDuration(float Value);
+
+	void UpdateUltimateDurationWithTimer();
+
+	void BeginUltimateBehaviour();
+
+protected:
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void BP_GainUltimateXP(float XPGained);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void BP_StartUltimate();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void BP_UpdateUltimateDuration(float Value);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void BP_StopUltimate();
 };

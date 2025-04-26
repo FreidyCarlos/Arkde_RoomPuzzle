@@ -18,6 +18,9 @@ public:
 	// Sets default values for this actor's properties
 	ARP_Weapon();
 
+	UPROPERTY(BlueprintReadOnly, Category = "ControlDamage")
+	bool bInvulnerableState;
+
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
@@ -43,11 +46,14 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-		virtual void StartAction();
+	virtual void StartAction();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void StopAction();
 
 	UFUNCTION(BlueprintCallable)
 	void SetCharacterOwner(ACharacter* NewOwner);
+
+	UFUNCTION(BlueprintCallable, Category="Health")
+    void InvulnerableState(bool bNewInvulnerable);
 };

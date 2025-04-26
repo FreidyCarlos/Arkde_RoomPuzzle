@@ -21,6 +21,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "HealthComponent")
 	bool bIsDead;
 
+	UPROPERTY(BlueprintReadOnly, Category = "HealthComponent")
+	bool bInvulnerableState;
+
 	UPROPERTY(BlueprintReadWrite, Category = "HealthComponent")
 	float Health;
 
@@ -41,6 +44,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool IsDead() const {return bIsDead; };
+
+	UFUNCTION(BlueprintCallable, Category="Health")
+    void InvulnerableState(bool bNewInvulnerable);
 
 	UFUNCTION()
 	void TakingDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);

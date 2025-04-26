@@ -45,3 +45,9 @@ void ARP_Weapon::SetCharacterOwner(ACharacter* NewOwner)
 		CurrentOwnerCharacter = NewOwner;
 	}
 }
+
+void ARP_Weapon::InvulnerableState(bool bNewInvulnerable)
+{
+	bInvulnerableState = bNewInvulnerable;
+
+}

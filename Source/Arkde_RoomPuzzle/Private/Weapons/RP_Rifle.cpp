@@ -68,6 +68,12 @@ void ARP_Rifle::HandleAutoFire()
 			AActor* HitActor = HitResult.GetActor();
 			if (IsValid(HitActor))
 			{
+				
+				if (bInvulnerableState && HitActor == CurrentOwner)
+				{
+					UGameplayStatics::ApplyPointDamage(HitActor, 0.0f, ShotDirection, HitResult, CurrentOwner->GetInstigatorController(), this, DamageType);
+					return;
+				}
 				UGameplayStatics::ApplyPointDamage(HitActor, Damage, ShotDirection, HitResult, CurrentOwner->GetInstigatorController(), this, DamageType);
 			}
 

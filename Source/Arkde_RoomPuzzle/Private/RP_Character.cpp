@@ -63,7 +63,15 @@ ARP_Character::ARP_Character()
 	MeleeDetectorComponent2->SetCollisionResponseToChannel(COLLISION_ENEMY, ECR_Overlap);
 	MeleeDetectorComponent2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	MeleeDetectorComponent3 = CreateDefaultSubobject<UCapsuleComponent>(TEXT("MeleeDetectorComponent3"));
+	MeleeDetectorComponent3->SetupAttachment(RootComponent);
+	MeleeDetectorComponent3->SetCollisionObjectType(ECC_GameTraceChannel4);  // Canal de colisión de la ultimate
+	MeleeDetectorComponent3->SetCollisionResponseToAllChannels(ECR_Ignore);  // Ignorar todas las colisiones por defecto
+	MeleeDetectorComponent3->SetCollisionResponseToChannel(COLLISION_ULTIMATE2, ECR_Overlap);
+	MeleeDetectorComponent3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	MeleeDamage = 10.0f;
+	
 
 	bCanUseWeapon = true;//para disparar aun asi no haya hecho un ataque melee
 
@@ -80,6 +88,9 @@ ARP_Character::ARP_Character()
 	UltimatePlayRate = 2.0f;
 	PlayRate = 1.0f;
 	UltimateShotFrequency = 0.25f;
+
+	MaxUltimateDuration2 = 12.0f;
+	UltimateCollisionDamage = 1000.0f;
 }
 
 FVector ARP_Character::GetPawnViewLocation() const//CORRIGE EL INICIO DEL LINETRACE VISUAL EN UNREAL
@@ -105,6 +116,7 @@ void ARP_Character::BeginPlay()
 	CreateInitialWeapon();
 	MeleeDetectorComponent->OnComponentBeginOverlap.AddDynamic(this, &ARP_Character::MakeMeleeDamage);
 	MeleeDetectorComponent2->OnComponentBeginOverlap.AddDynamic(this, &ARP_Character::MakeMeleeDamage);
+	MeleeDetectorComponent3->OnComponentBeginOverlap.AddDynamic(this, &ARP_Character::MakeUltimate2Damage);
 
 	HealthComponent->OnHealthChangeDelegate.AddDynamic(this, &ARP_Character::OnHealthChange);
 
@@ -202,7 +214,7 @@ void ARP_Character::ResetDash()
 
 void ARP_Character::StartWeaponAction()
 {
-	if (!bCanUseWeapon)
+	if (!bCanUseWeapon || bIsUsingUltimate2)
 	{
 		return;
 	}
@@ -220,7 +232,7 @@ void ARP_Character::StartWeaponAction()
 
 void ARP_Character::StopWeaponAction()
 {
-	if (!bCanUseWeapon)
+	if (!bCanUseWeapon || bIsUsingUltimate2)
 	{
 		return;
 	}
@@ -289,6 +301,11 @@ void ARP_Character::StopMelee()
 
 void ARP_Character::StartUltimate()
 {
+	if (bIsUsingUltimate2)
+	{
+		return;
+	}
+
 	if (bCanUseUltimate && !bIsUsingUltimate)
 	{
 		CurrentUltimateDuration = MaxUltimateDuration;
@@ -306,12 +323,46 @@ void ARP_Character::StartUltimate()
 		else {
 			BeginUltimateBehaviour();
 		}
-
 		BP_StartUltimate();
 	}
 }
 
 void ARP_Character::StopUltimate() 
+{
+
+}
+
+void ARP_Character::StartUltimate2()
+{
+	if (bIsUsingUltimate)
+	{
+		return;
+	}
+
+	if (bCanUseUltimate && !bIsUsingUltimate2)
+	{
+		CurrentUltimateDuration2 = MaxUltimateDuration2;
+
+		bCanUseUltimate = false;
+
+		SetInvulnerable(true);
+
+		if (IsValid(MyAnimInstance) && IsValid(UltimateMontage2))
+		{
+			GetCharacterMovement()->MaxWalkSpeed = 0.0f;
+			MyAnimInstance->Montage_Play(UltimateMontage2, UltimatePlayRate);
+			const float RawLength = UltimateMontage2->GetPlayLength();
+			const float StartUltimateMontageDuration2 = RawLength / UltimatePlayRate;
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_BeginUltimateBehaviour2, this, &ARP_Character::BeginUltimateBehaviour2, StartUltimateMontageDuration2, false);
+		}
+		else {
+			BeginUltimateBehaviour2();
+		}
+		BP_StartUltimate2();
+	}
+}
+
+void ARP_Character::StopUltimate2()
 {
 
 }
@@ -324,8 +375,17 @@ void ARP_Character::MakeMeleeDamage(UPrimitiveComponent* OverlappedComponent, AA
 	}
 }
 
+void ARP_Character::MakeUltimate2Damage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (IsValid(OtherActor) && OtherActor != this)
+	{
+		UGameplayStatics::ApplyPointDamage(OtherActor, UltimateCollisionDamage, SweepResult.Location, SweepResult, GetInstigatorController(), this, nullptr);
+	}
+}
+
 void ARP_Character::OnHealthChange(URP_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
+
 	if (HealthComponent->IsDead())
 	{
 		if (IsValid(GameModeReference))
@@ -359,6 +419,9 @@ void ARP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Ultimate", IE_Pressed, this, &ARP_Character::StartUltimate);
 	PlayerInputComponent->BindAction("Ultimate", IE_Released, this, &ARP_Character::StopUltimate);
+
+	PlayerInputComponent->BindAction("Ultimate2", IE_Pressed, this, &ARP_Character::StartUltimate2);
+	PlayerInputComponent->BindAction("Ultimate2", IE_Released, this, &ARP_Character::StopUltimate2);
 }
 
 void ARP_Character::AddKey(FName NewKey)
@@ -396,7 +459,7 @@ void ARP_Character::ResetCombo()
 
 void ARP_Character::GainUltimateXP(float XPGained)
 {
-	if (bCanUseUltimate || bIsUsingUltimate)
+	if (bCanUseUltimate || bIsUsingUltimate || bIsUsingUltimate2)
 	{
 		return;
 	}
@@ -428,7 +491,6 @@ void ARP_Character::UpdateUltimateDuration(float Value)
 		{
 			GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Ultimate);
 		}
-
 		BP_StopUltimate();
 	}
 }
@@ -449,4 +511,62 @@ void ARP_Character::BeginUltimateBehaviour()
 	{
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_Ultimate, this, &ARP_Character::UpdateUltimateDurationWithTimer, UltimateFrequency, true);
 	}
+}
+
+void ARP_Character::UpdateUltimateDuration2(float Value)
+{
+	CurrentUltimateDuration2 = FMath::Clamp(CurrentUltimateDuration2 - Value, 0.0f, MaxUltimateDuration2);
+	BP_UpdateUltimateDuration2(Value);
+
+	if (CurrentUltimateDuration2 == 0.0f)
+	{
+		bIsUsingUltimate2 = false;
+		PlayRate = 1.0f;
+		SetInvulnerable(false);
+
+		GetCharacterMovement()->MaxWalkSpeed = NormalWalkSpeed;
+
+		MeleeDetectorComponent3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		if (!bUltimateWithTick)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Ultimate2);
+		}
+		BP_StopUltimate2();
+	}
+}
+
+void ARP_Character::UpdateUltimateDurationWithTimer2()
+{
+	UpdateUltimateDuration2(UltimateFrequency);
+}
+
+void ARP_Character::BeginUltimateBehaviour2()
+{
+	bIsUsingUltimate2 = true;
+
+	GetCharacterMovement()->MaxWalkSpeed = UltimateWalkSpeed;
+	PlayRate = UltimatePlayRate;
+
+	MeleeDetectorComponent3->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	if (!bUltimateWithTick)
+	{
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_Ultimate2, this, &ARP_Character::UpdateUltimateDurationWithTimer2, UltimateFrequency, true);
+	}
+}
+
+void ARP_Character::SetInvulnerable(bool bNewInvulnerable)
+{
+	bIsInvulnerable = bNewInvulnerable;
+
+	if (HealthComponent)
+	{
+		HealthComponent->InvulnerableState(bIsInvulnerable);
+	}
+
+    if (CurrentWeapon)
+    {
+		CurrentWeapon->InvulnerableState(bIsInvulnerable);
+    }
 }

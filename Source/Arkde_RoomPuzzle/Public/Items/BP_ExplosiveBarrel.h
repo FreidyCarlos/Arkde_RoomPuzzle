@@ -9,6 +9,7 @@
 class UStaticMeshComponent;
 class USphereComponent;
 class URP_HealthComponent;
+class UCapsuleComponent;
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ABP_ExplosiveBarrel : public AActor
@@ -22,6 +23,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USphereComponent* OverlapSphere;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UCapsuleComponent* OverlapUltimate2;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	URP_HealthComponent* HealthComponent;

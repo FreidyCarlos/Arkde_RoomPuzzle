@@ -28,8 +28,18 @@ void URP_HealthComponent::BeginPlay()
 	}
 }
 
+void URP_HealthComponent::InvulnerableState(bool bNewInvulnerable)
+{
+	bInvulnerableState = bNewInvulnerable;
+}
+
 void URP_HealthComponent::TakingDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
+	if (bInvulnerableState == true)
+	{
+		return;
+	}
+
 	if (Damage <= 0.0f || bIsDead)
 	{
 		return;

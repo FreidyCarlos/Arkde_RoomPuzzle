@@ -8,16 +8,26 @@
 #include "Components/RP_BurnComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
+#include "Components/CapsuleComponent.h"
+#include "Arkde_RoomPuzzle/Arkde_RoomPuzzle.h"
 
 // Sets default values
 ABP_ExplosiveBarrel::ABP_ExplosiveBarrel()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	BarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BarrelMesh"));
 	BarrelMesh->SetCollisionProfileName("PhysicsActor");
 	RootComponent = BarrelMesh;
+
+	OverlapUltimate2 = CreateDefaultSubobject<UCapsuleComponent>(TEXT("OverlapUltimate2"));
+	OverlapUltimate2->SetupAttachment(RootComponent);
+	OverlapUltimate2->SetCollisionEnabled(ECollisionEnabled::QueryOnly);  // Solo consulta (sin bloquear)
+	OverlapUltimate2->SetCollisionObjectType(COLLISION_ULTIMATE2); // Usar el canal de colisión para Ultimate2
+	OverlapUltimate2->SetCollisionResponseToAllChannels(ECR_Ignore);  // Ignorar todas las colisiones por defecto
+	OverlapUltimate2->SetCollisionResponseToChannel(COLLISION_ULTIMATE2, ECR_Overlap); // Solo detectar superposiciones con el canal Ultimate2
+	OverlapUltimate2->SetGenerateOverlapEvents(true);// Asegura que se generen eventos de superposición
 
 	OverlapSphere = CreateDefaultSubobject<USphereComponent>("OverlapSphere");
 	OverlapSphere->SetupAttachment(RootComponent);

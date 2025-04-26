@@ -55,5 +55,4 @@ protected:
 	virtual void StopAction() override;
 
 	void HandleAutoFire();
-
 };

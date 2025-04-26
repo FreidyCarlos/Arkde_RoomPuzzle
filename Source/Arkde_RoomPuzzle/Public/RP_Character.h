@@ -11,7 +11,7 @@ class USpringArmComponent;
 class ARP_Weapon;
 class UAnimMontage;
 class UAnimInstance;
-class URP_HealthComponent;
+class URP_HealthComponent ;
 class ARP_GameMode;
 class URP_BurnComponent;
 
@@ -36,6 +36,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCapsuleComponent* MeleeDetectorComponent2;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UCapsuleComponent* MeleeDetectorComponent3;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	URP_HealthComponent* HealthComponent;
@@ -177,6 +180,29 @@ protected:
 
 	FTimerHandle TimerHandle_BeginUltimateBehaviour;
 
+	//ultimate2
+	UPROPERTY(BlueprintReadOnly, Category = "Ultimate2")
+	bool bIsUsingUltimate2;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ultimate2|Time", meta = (ClampMin = 0.0, UIMin = 0.0))
+	float MaxUltimateDuration2;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ultimate2|Time")
+	float CurrentUltimateDuration2;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* UltimateMontage2;
+
+	FTimerHandle TimerHandle_BeginUltimateBehaviour2;
+
+	FTimerHandle TimerHandle_Ultimate2;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ultimate2")
+	float UltimateCollisionDamage;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ultimate2")
+	bool bIsInvulnerable;
+
 public:
 	// Sets default values for this character's properties
 	ARP_Character();
@@ -217,8 +243,15 @@ protected:
 
 	void StopUltimate();
 
+	void StartUltimate2();
+
+	void StopUltimate2();
+
 	UFUNCTION()
 	void MakeMeleeDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void MakeUltimate2Damage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
 	void OnHealthChange(URP_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
@@ -257,6 +290,15 @@ public:
 
 	void BeginUltimateBehaviour();
 
+	void UpdateUltimateDuration2(float Value);
+
+	void UpdateUltimateDurationWithTimer2();
+
+	void BeginUltimateBehaviour2();
+
+	UFUNCTION(BlueprintCallable, Category="Health")
+    void SetInvulnerable(bool bNewInvulnerable);
+
 protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
@@ -270,4 +312,13 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void BP_StopUltimate();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void BP_StartUltimate2();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void BP_UpdateUltimateDuration2(float Value);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void BP_StopUltimate2();
 };

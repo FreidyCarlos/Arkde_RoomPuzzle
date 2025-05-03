@@ -15,6 +15,13 @@ class URP_HealthComponent ;
 class ARP_GameMode;
 class URP_BurnComponent;
 
+UENUM(Blueprintable)
+enum class ERP_CharacterType : uint8
+{
+	CharacterType_Player		UMETA(DisplayName = "Player"),
+	CharacterType_Enemy			UMETA(DisplayName = "Enemy"),
+};
+
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Character : public ACharacter
 {
@@ -203,6 +210,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Ultimate2")
 	bool bIsInvulnerable;
 
+	//IA
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	ERP_CharacterType CharacterType;
+
 public:
 	// Sets default values for this character's properties
 	ARP_Character();
@@ -298,6 +309,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Health")
     void SetInvulnerable(bool bNewInvulnerable);
+
+	UFUNCTION(BlueprintCallable)
+	ERP_CharacterType GetCharacterType() { return CharacterType; };
 
 protected:
 

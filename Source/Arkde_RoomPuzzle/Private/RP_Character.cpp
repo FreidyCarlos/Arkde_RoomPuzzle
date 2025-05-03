@@ -386,11 +386,19 @@ void ARP_Character::MakeUltimate2Damage(UPrimitiveComponent* OverlappedComponent
 void ARP_Character::OnHealthChange(URP_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
 
-	if (HealthComponent->IsDead())
+	if (CurrentHealthComponent->IsDead())
 	{
-		if (IsValid(GameModeReference))
+		CurrentHealthComponent->OnHealthChangeDelegate.RemoveDynamic(this, &ARP_Character::OnHealthChange);
+
+		if (GetCharacterType() == ERP_CharacterType::CharacterType_Player)
 		{
-			GameModeReference->GameOver(this);
+			if (IsValid(GameModeReference))
+				GameModeReference->GameOver(this);
+		}
+		else
+		{
+			SetActorEnableCollision(false);
+			SetLifeSpan(10.0f);
 		}
 	}
 }
@@ -491,6 +499,7 @@ void ARP_Character::UpdateUltimateDuration(float Value)
 		{
 			GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Ultimate);
 		}
+		CurrentUltimateXP = 0.0f;
 		BP_StopUltimate();
 	}
 }
@@ -532,6 +541,7 @@ void ARP_Character::UpdateUltimateDuration2(float Value)
 		{
 			GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Ultimate2);
 		}
+		CurrentUltimateXP = 0.0f;
 		BP_StopUltimate2();
 	}
 }

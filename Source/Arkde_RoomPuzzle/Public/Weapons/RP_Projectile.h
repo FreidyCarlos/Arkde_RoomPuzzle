@@ -10,7 +10,7 @@ class UStaticMeshComponent;
 class UProjectileMovementComponent;
 class USphereComponent;
 class UParticleSystem;
-
+class ARP_Character;
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Projectile : public AActor
@@ -44,6 +44,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	UParticleSystem* ImpactEffect;
+
+	UPROPERTY(BlueprintReadOnly, Category = "References")
+	ARP_Character* PlayerCharacter;
 
 public:	
 	// Sets default values for this actor's properties

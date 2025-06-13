@@ -9,6 +9,7 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "RP_Character.h"
 
 // Sets default values
 ARP_Projectile::ARP_Projectile()
@@ -44,9 +45,10 @@ void ARP_Projectile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GetOwner())
+	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (IsValid(PlayerPawn))
 	{
-		ProjectileCollision->IgnoreActorWhenMoving(GetOwner(), true);
+		PlayerCharacter = Cast<ARP_Character>(PlayerPawn);
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(ExplosionTimerHandle, this, &ARP_Projectile::Explode, ExplosionDelay, false);//esto es para que explote aun asi no colisione con nada
@@ -54,11 +56,14 @@ void ARP_Projectile::BeginPlay()
 
 void ARP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor && OtherActor != this)
+	if (IsValid(OtherActor))
 	{
-		if (OtherComp->GetCollisionObjectType() == COLLISION_ENEMY)
+		if (OtherActor != PlayerCharacter)
 		{
-			Explode();
+			if (OtherComp->GetCollisionObjectType() == ECC_Pawn)
+			{
+				Explode();
+			}
 		}
 	}
 }

@@ -9,6 +9,8 @@
 class UStaticMeshComponent;
 class ARP_Character;
 class UMaterialInstanceDynamic;
+class UParticleSystem;
+class USphereComponent;
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Bot : public APawn
@@ -21,9 +23,21 @@ public:
 	UStaticMeshComponent* BotMeshComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USphereComponent* SelfDestructionDetectorComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	URP_HealthComponent* HealthComponent;
 
 protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debug")
+	bool bDebug;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Bot Self Destruction")
+	bool bIsExploted;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Bot Self Destruction")
+	bool bIsStartingCountDown;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Bot Movement")
 	float MinDistanceToTarget;
@@ -31,13 +45,24 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Bot Movement")
 	float ForceMagnitude;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Bot Effect")
+	float ExplosionDamage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Bot Effect")
+	float ExplosionRadius;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Bot")
 	FVector NextPathPoint;
 
 	UPROPERTY(BlueprintReadOnly, Category = "References")
 	ARP_Character* PlayerCharacter;
 
-	UMaterialInstanceDynamic* BotMaterial; 
+	UMaterialInstanceDynamic* BotMaterial;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Bot Effect")
+	UParticleSystem* ExplosionEffect;
+
+	FTimerHandle TimerHandleSelfDamage;
 
 public:
 	// Sets default values for this pawn's properties
@@ -52,6 +77,13 @@ protected:
 
 	UFUNCTION()
 	void TakingDamage(URP_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
+	void SelfDestruction();
+
+	UFUNCTION()
+	void StartCountDown(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	void SelfDamage();
 
 public:	
 	// Called every frame

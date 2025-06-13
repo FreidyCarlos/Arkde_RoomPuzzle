@@ -10,6 +10,8 @@
 #include "DrawDebugHelpers.h"
 #include "Components/RP_HealthComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Components/SphereComponent.h"
+#include "Particles/ParticleSystem.h"
 
 // Sets default values
 ARP_Bot::ARP_Bot()
@@ -24,8 +26,16 @@ ARP_Bot::ARP_Bot()
 
 	HealthComponent = CreateDefaultSubobject<URP_HealthComponent>(TEXT("HealthComponent"));
 
+	SelfDestructionDetectorComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SelfDestructionDetector"));
+	SelfDestructionDetectorComponent->SetupAttachment(RootComponent);
+	SelfDestructionDetectorComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+	SelfDestructionDetectorComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	SelfDestructionDetectorComponent->SetSphereRadius(150.0f);
+
 	MinDistanceToTarget = 100.0f;
 	ForceMagnitude = 500.0f;
+	ExplosionDamage = 100.0f;
+	ExplosionRadius = 50.0f;
 }
 
 // Called when the game starts or when spawned
@@ -40,6 +50,7 @@ void ARP_Bot::BeginPlay()
 	}
 
 	HealthComponent->OnHealthChangeDelegate.AddDynamic(this, &ARP_Bot::TakingDamage);
+	SelfDestructionDetectorComponent->OnComponentBeginOverlap.AddDynamic(this, &ARP_Bot::StartCountDown);
 
 	BotMaterial = BotMeshComponent->CreateAndSetMaterialInstanceDynamicFromMaterial(0, BotMeshComponent->GetMaterial(0));
 
@@ -73,8 +84,55 @@ void ARP_Bot::TakingDamage(URP_HealthComponent* CurrentHealthComponent, AActor* 
 
 	if (CurrentHealthComponent->IsDead())
 	{
-		Destroy();
+		SelfDestruction();
 	}
+}
+
+void ARP_Bot::SelfDestruction()
+{
+	if (bIsExploted)
+	{
+		return;
+	}
+
+	bIsExploted = true;
+
+	if (IsValid(ExplosionEffect))
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
+	}
+
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(this);
+
+	UGameplayStatics::ApplyRadialDamage(GetWorld(), ExplosionDamage, GetActorLocation(), ExplosionRadius, nullptr, IgnoredActors, this, GetInstigatorController(), true);
+
+	if (bDebug)
+	{
+		DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 20, FColor::Red, true, 5.0f, 0, 2.0f);
+	}
+
+	Destroy();
+}
+
+void ARP_Bot::StartCountDown(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (bIsStartingCountDown)
+	{
+		return;
+	}
+
+	if (OtherActor == PlayerCharacter)
+	{
+		bIsStartingCountDown = true;
+
+		GetWorld()->GetTimerManager().SetTimer(TimerHandleSelfDamage, this, &ARP_Bot::SelfDamage, 0.5f, true);
+	}
+}
+
+void ARP_Bot::SelfDamage()
+{
+	UGameplayStatics::ApplyDamage(this, 20.0f, GetInstigatorController(), nullptr, nullptr);
 }
 
 // Called every frame
@@ -96,6 +154,9 @@ void ARP_Bot::Tick(float DeltaTime)
 		BotMeshComponent->AddForce(ForceDirection, NAME_None, true);
 	}
 
-	DrawDebugSphere(GetWorld(), NextPathPoint, 30.0f, 15, FColor::Purple, false, 0.0f, 0, 1.0f);
+	if (bDebug)
+	{
+		DrawDebugSphere(GetWorld(), NextPathPoint, 30.0f, 15, FColor::Purple, false, 0.0f, 0, 1.0f);
+	}
 }
 

@@ -5,6 +5,7 @@
 #include "Weapons/RP_Projectile.h"
 #include "GameFramework/Character.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "RP_Character.h"
 
 ARP_GrenadeLauncher::ARP_GrenadeLauncher() 
 {

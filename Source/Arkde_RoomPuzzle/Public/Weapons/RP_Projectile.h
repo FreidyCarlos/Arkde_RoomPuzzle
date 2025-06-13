@@ -29,18 +29,15 @@ protected:
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	float ExplosionDelay = 2.5f; 
+	float ExplosionDelay; 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	float ExplosionRadius = 130.0f; 
+	float ExplosionRadius; 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	float ExplosionDamage = 70.0f;
+	float ExplosionDamage;
 
 	FTimerHandle ExplosionTimerHandle;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	TSubclassOf<AActor> TargetActorClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage")
 	TSubclassOf<UDamageType> DamageType;

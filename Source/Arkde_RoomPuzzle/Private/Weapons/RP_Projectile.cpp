@@ -9,7 +9,6 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
-#include "RP_Character.h"
 
 // Sets default values
 ARP_Projectile::ARP_Projectile()
@@ -18,15 +17,24 @@ ARP_Projectile::ARP_Projectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ProjectileCollision = CreateDefaultSubobject<USphereComponent>(TEXT("ProjectileCollision"));
+	ProjectileCollision->SetCollisionResponseToAllChannels(ECR_Ignore);
+	ProjectileCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	RootComponent = ProjectileCollision;
 
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMesh"));
 	ProjectileMesh->SetupAttachment(ProjectileCollision);
+	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComp"));
-
 	ProjectileMovementComponent->InitialSpeed = 3000.0f;
 	ProjectileMovementComponent->MaxSpeed = 3000.0f;
+	ProjectileMovementComponent->bRotationFollowsVelocity = true;
+	ProjectileMovementComponent->bShouldBounce = false;
+
+
+	ExplosionDelay = 2.5f;
+	ExplosionRadius = 130.0f;
+	ExplosionDamage = 70.0f;
 
 	ProjectileCollision->OnComponentHit.AddDynamic(this, &ARP_Projectile::OnHit);  // Escuchar el evento de colisión
 }
@@ -35,6 +43,11 @@ ARP_Projectile::ARP_Projectile()
 void ARP_Projectile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (GetOwner())
+	{
+		ProjectileCollision->IgnoreActorWhenMoving(GetOwner(), true);
+	}
 
 	GetWorld()->GetTimerManager().SetTimer(ExplosionTimerHandle, this, &ARP_Projectile::Explode, ExplosionDelay, false);//esto es para que explote aun asi no colisione con nada
 }
@@ -86,5 +99,5 @@ void ARP_Projectile::Explode()
 void ARP_Projectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
+}	
 

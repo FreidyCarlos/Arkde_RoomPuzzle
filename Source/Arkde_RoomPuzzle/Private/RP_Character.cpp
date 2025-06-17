@@ -597,3 +597,5 @@ void ARP_Character::SetInvulnerable(bool bNewInvulnerable)
 		CurrentWeapon->InvulnerableState(bIsInvulnerable);
     }
 }
+
+

@@ -38,6 +38,15 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnHealthChangeSignature OnHealthChangeDelegate;
 
+	UFUNCTION(BlueprintCallable, Category="Health")
+    float GetHealth() const;
+
+    UFUNCTION(BlueprintCallable, Category="Health")
+    float GetMaxHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category="Health")
+    void SetHealth(float NewHealth);
+
 public:	
 	// Sets default values for this component's properties
 	URP_HealthComponent();

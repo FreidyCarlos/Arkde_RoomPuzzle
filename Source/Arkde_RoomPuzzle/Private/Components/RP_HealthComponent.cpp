@@ -59,3 +59,31 @@ void URP_HealthComponent::TakingDamage(AActor* DamagedActor, float Damage, const
 		UE_LOG(LogTemp, Log, TEXT("My Health is: %s"), *FString::SanitizeFloat(Health));
 	}
 }
+
+float URP_HealthComponent::GetHealth() const
+{
+	return Health;
+}
+
+float URP_HealthComponent::GetMaxHealth() const
+{
+	return MaxHealth;
+}
+
+void URP_HealthComponent::SetHealth(float NewHealth)
+{
+	// Si ya está muerto, no resucitar por esta llamada (opcional según diseño)
+	if (bIsDead)
+	{
+		return;
+	}
+
+	float Clamped = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
+	Health = Clamped;
+
+	// Si llega a 0, marcar muerto (aunque el Healer no debería bajar a 0)
+	if (Health <= 0.f)
+	{
+		bIsDead = true;
+	}
+}

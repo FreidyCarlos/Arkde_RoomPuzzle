@@ -43,6 +43,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USphereComponent* HealingSphere;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Bot Effect | Dead")
+	UParticleSystem* DeadEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Bot Effect | Healing")
+	UParticleSystem* HealingEffect;
+
+	UParticleSystemComponent* ActiveHealingEmitterComponent;
 
 protected:
 
@@ -52,25 +59,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debug")
 	bool bDebug;
 
-	UMaterialInstanceDynamic* HealerMaterial;
+	bool bIsPatrolling;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Bot Effect | Dead")
-	UParticleSystem* DeadEffect;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Bot Effect | Healing")
-	UParticleSystem* HealingEffect;
-
-    FVector PatrolCenter;
-
-    float PatrolAngle;
+	float PatrolAngle;
 
     UPROPERTY(EditDefaultsOnly, Category = "Patrol")
     float PatrolRadius;
 
     UPROPERTY(EditDefaultsOnly, Category = "Patrol")
     float PatrolSpeed;
-
-    bool bIsPatrolling;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Healing")
     float HealRadius;
@@ -87,17 +84,19 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Movement")
 	float TargetMoveSpeed = 500.0f;
 
+	UMaterialInstanceDynamic* HealerMaterial;
+
+    FVector PatrolCenter;
+
+	FVector LastPatrolLocation;
+
+	URP_HealthComponent* CurrentTargetHealthComp;
+
 	EHealerState HealerState;
 
 	TArray<URP_HealthComponent*> DamagedTargets;
 
-	URP_HealthComponent* CurrentTargetHealthComp;
-
 	FTimerHandle HealTimerHandle;
-
-	FVector LastPatrolLocation;
-
-	UParticleSystemComponent* ActiveHealingEmitterComponent = nullptr;
 
 protected:
 	// Called when the game starts or when spawned

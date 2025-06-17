@@ -43,6 +43,7 @@ ARP_Healer::ARP_Healer()
     HealInterval = 1.0f;
     HealerState = EHealerState::Patrolling;
     CurrentTargetHealthComp = nullptr;
+    ActiveHealingEmitterComponent = nullptr;
 }
 
 // Called when the game starts or when spawned

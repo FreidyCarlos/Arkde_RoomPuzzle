@@ -12,6 +12,9 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Components/SphereComponent.h"
 #include "Particles/ParticleSystem.h"
+#include "Weapons/RP_Rifle.h"
+#include "Weapons/RP_Projectile.h"
+#include "Weapons/RP_GrenadeLauncher.h"
 
 // Sets default values
 ARP_Bot::ARP_Bot()
@@ -36,6 +39,8 @@ ARP_Bot::ARP_Bot()
 	ForceMagnitude = 500.0f;
 	ExplosionDamage = 100.0f;
 	ExplosionRadius = 50.0f;
+
+	XPValue = 20.0f;
 }
 
 // Called when the game starts or when spawned
@@ -50,6 +55,8 @@ void ARP_Bot::BeginPlay()
 	}
 
 	HealthComponent->OnHealthChangeDelegate.AddDynamic(this, &ARP_Bot::TakingDamage);
+	HealthComponent->OnDeadDelegate.AddDynamic(this, &ARP_Bot::GiveXP);
+
 	SelfDestructionDetectorComponent->OnComponentBeginOverlap.AddDynamic(this, &ARP_Bot::StartCountDown);
 
 	BotMaterial = BotMeshComponent->CreateAndSetMaterialInstanceDynamicFromMaterial(0, BotMeshComponent->GetMaterial(0));
@@ -133,6 +140,45 @@ void ARP_Bot::StartCountDown(UPrimitiveComponent* OverlappedComponent, AActor* O
 void ARP_Bot::SelfDamage()
 {
 	UGameplayStatics::ApplyDamage(this, 20.0f, GetInstigatorController(), nullptr, nullptr);
+}
+
+void ARP_Bot::GiveXP(AActor* DamageCauser)
+{
+	ARP_Character* PossiblePlayer = Cast<ARP_Character>(DamageCauser);
+	if (IsValid(PossiblePlayer) && PossiblePlayer->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
+	{
+		PossiblePlayer->GainUltimateXP(XPValue);
+	}
+
+	ARP_Rifle* PossibleRifle = Cast<ARP_Rifle>(DamageCauser);
+	if (IsValid(PossibleRifle))
+	{
+		ARP_Character* RifleOwner = Cast<ARP_Character>(PossibleRifle->GetOwner());
+
+		if (IsValid(RifleOwner) && RifleOwner->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
+		{
+			RifleOwner->GainUltimateXP(XPValue);
+		}
+	}
+
+	ARP_Projectile* PossibleProjectile = Cast<ARP_Projectile>(DamageCauser);
+	if (IsValid(PossibleProjectile))
+	{
+		ARP_GrenadeLauncher* ProjectileCaster = Cast<ARP_GrenadeLauncher>(PossibleProjectile->GetOwner());
+
+
+		if (IsValid(ProjectileCaster))
+		{
+			ARP_Character* GrenadeLauncherOwner = Cast<ARP_Character>(ProjectileCaster->GetOwner());
+
+			if (IsValid(GrenadeLauncherOwner) && GrenadeLauncherOwner->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
+			{
+				GrenadeLauncherOwner->GainUltimateXP(XPValue);
+			}
+		}
+	}
+
+	BP_GiveXP(DamageCauser);
 }
 
 // Called every frame

@@ -2,10 +2,62 @@
 
 
 #include "Enemy/RP_Enemy.h"
+#include "RP_Character.h"
+#include "Weapons/RP_Rifle.h"
+#include "Weapons/RP_Projectile.h"
+#include "Weapons/RP_GrenadeLauncher.h"
+#include "Components/RP_HealthComponent.h"
 
 ARP_Enemy::ARP_Enemy()
 {
 	bLoopPath = false;
 	DirectionIndex = 1.0;
 	WaitingTimeOnPathPoint = 1.0f;
+	XPValue = 20.0f;
+}
+
+void ARP_Enemy::BeginPlay()
+{
+	Super::BeginPlay();
+
+	HealthComponent->OnDeadDelegate.AddDynamic(this, &ARP_Enemy::GiveXP);
+}
+
+void ARP_Enemy::GiveXP(AActor* DamageCauser)
+{
+	ARP_Character* PossiblePlayer = Cast<ARP_Character>(DamageCauser);
+	if (IsValid(PossiblePlayer) && PossiblePlayer->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
+	{
+		PossiblePlayer->GainUltimateXP(XPValue);
+	}
+
+	ARP_Rifle* PossibleRifle = Cast<ARP_Rifle>(DamageCauser);
+	if (IsValid(PossibleRifle))
+	{
+		ARP_Character* RifleOwner = Cast<ARP_Character>(PossibleRifle->GetOwner());
+
+		if (IsValid(RifleOwner) && RifleOwner->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
+		{
+			RifleOwner->GainUltimateXP(XPValue);
+		}
+	}
+
+	ARP_Projectile* PossibleProjectile = Cast<ARP_Projectile>(DamageCauser);
+	if (IsValid(PossibleProjectile))
+	{
+		ARP_GrenadeLauncher* ProjectileCaster = Cast<ARP_GrenadeLauncher>(PossibleProjectile->GetOwner());
+
+
+		if (IsValid(ProjectileCaster))
+		{
+			ARP_Character* GrenadeLauncherOwner = Cast<ARP_Character>(ProjectileCaster->GetOwner());
+			
+			if (IsValid(GrenadeLauncherOwner) && GrenadeLauncherOwner->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
+			{
+				GrenadeLauncherOwner->GainUltimateXP(XPValue);
+			}
+		}
+	}
+
+	BP_GiveXP(DamageCauser);
 }

@@ -84,6 +84,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Movement")
 	float TargetMoveSpeed = 500.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bot Ultimate XP")
+	float XPValue;
+
 	UMaterialInstanceDynamic* HealerMaterial;
 
     FVector PatrolCenter;
@@ -137,6 +140,12 @@ protected:
 	URP_HealthComponent* FindNearestDamaged();
 
 	void MoveTowards(const FVector& TargetLocation, float DeltaTime);
+
+	UFUNCTION()
+	void GiveXP(AActor* DamageCauser);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_GiveXP(AActor* DamageCauser);
 
 public:	
 	// Called every frame

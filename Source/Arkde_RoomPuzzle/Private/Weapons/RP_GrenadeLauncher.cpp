@@ -14,15 +14,13 @@ ARP_GrenadeLauncher::ARP_GrenadeLauncher()
 
 void ARP_GrenadeLauncher::StartAction()
 {
-	Super::StartAction();
+    Super::StartAction();
 
     if (IsValid(CurrentOwnerCharacter))
     {
         FVector EyeLocation;
         FRotator EyeRotation;
-
         CurrentOwnerCharacter->GetActorEyesViewPoint(EyeLocation, EyeRotation);
-
         FVector ShotDirection = EyeRotation.Vector();
 
         USkeletalMeshComponent* CharacterMeshComponent = CurrentOwnerCharacter->GetMesh();
@@ -31,7 +29,18 @@ void ARP_GrenadeLauncher::StartAction()
             FVector MuzzleSocketLocation = CharacterMeshComponent->GetSocketLocation(MuzzleSocketName);
             FRotator SpawnRotation = ShotDirection.Rotation();
 
-            ARP_Projectile* CurrentProjectile = GetWorld()->SpawnActor<ARP_Projectile>(ProjectileClass, MuzzleSocketLocation, SpawnRotation);
+            // ——— Spawn params para asignar Owner e Instigator ———
+            FActorSpawnParameters SpawnParams;
+            SpawnParams.Owner = this;                   // el arma como Owner
+            SpawnParams.Instigator = CurrentOwnerCharacter; // el personaje como Instigator
+
+            // Spawn del proyectil con los parámetros
+            ARP_Projectile* CurrentProjectile = GetWorld()->SpawnActor<ARP_Projectile>(
+                ProjectileClass,
+                MuzzleSocketLocation,
+                SpawnRotation,
+                SpawnParams
+                );
         }
     }
 }

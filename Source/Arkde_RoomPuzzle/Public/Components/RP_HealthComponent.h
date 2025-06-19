@@ -64,7 +64,9 @@ public:
 	UFUNCTION()
 	void TakingDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
+	bool TryAddHealth(float HealthToAdd);
+
 protected:
 	// Called when the game starts
-	virtual void BeginPlay() override;		
+	virtual void BeginPlay() override;
 };

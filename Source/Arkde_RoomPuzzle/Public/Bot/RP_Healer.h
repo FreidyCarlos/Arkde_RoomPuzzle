@@ -13,6 +13,7 @@ class UMaterialInstanceDynamic;
 class UParticleSystem;
 class USphereComponent;
 class ARP_Character;
+class ARP_Item;
 
 UENUM(BlueprintType)
 enum class EHealerState : uint8
@@ -87,6 +88,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bot Ultimate XP")
 	float XPValue;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
+	float LootProbability;
+
 	UMaterialInstanceDynamic* HealerMaterial;
 
     FVector PatrolCenter;
@@ -100,6 +104,9 @@ protected:
 	TArray<URP_HealthComponent*> DamagedTargets;
 
 	FTimerHandle HealTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
+	TSubclassOf<ARP_Item> LootItemClass;
 
 protected:
 	// Called when the game starts or when spawned
@@ -146,6 +153,8 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_GiveXP(AActor* DamageCauser);
+
+	bool TrySpawnLoot();
 
 public:	
 	// Called every frame

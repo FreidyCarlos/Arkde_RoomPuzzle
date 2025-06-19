@@ -15,6 +15,7 @@
 #include "Weapons/RP_Rifle.h"
 #include "Weapons/RP_Projectile.h"
 #include "Weapons/RP_GrenadeLauncher.h"
+#include "Items/RP_Item.h"
 
 // Sets default values
 ARP_Bot::ARP_Bot()
@@ -41,6 +42,8 @@ ARP_Bot::ARP_Bot()
 	ExplosionRadius = 50.0f;
 
 	XPValue = 20.0f;
+
+	LootProbability = 100.0f;
 }
 
 // Called when the game starts or when spawned
@@ -91,6 +94,38 @@ void ARP_Bot::TakingDamage(URP_HealthComponent* CurrentHealthComponent, AActor* 
 
 	if (CurrentHealthComponent->IsDead())
 	{
+		if (IsValid(DamageCauser))
+		{
+			ARP_Rifle* Rifle = Cast<ARP_Rifle>(DamageCauser);
+			if (IsValid(Rifle))
+			{
+				ARP_Character* RifleOwner = Cast<ARP_Character>(Rifle->GetOwner());
+				if (IsValid(RifleOwner) && RifleOwner->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
+				{
+					TrySpawnLoot();
+				}
+			}
+			else
+			{
+				ARP_Projectile* Projectile = Cast<ARP_Projectile>(DamageCauser);
+				if (IsValid(Projectile))
+				{
+					ARP_GrenadeLauncher* ProjectileCaster = Cast<ARP_GrenadeLauncher>(Projectile->GetOwner());
+
+					if (IsValid(ProjectileCaster))
+					{
+						ARP_Character* GrenadeLauncherOwner = Cast<ARP_Character>(ProjectileCaster->GetOwner());
+
+						if (IsValid(GrenadeLauncherOwner) && GrenadeLauncherOwner->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
+						{
+							GrenadeLauncherOwner->GainUltimateXP(XPValue);
+
+							TrySpawnLoot();
+						}
+					}
+				}
+			}
+		}
 		SelfDestruction();
 	}
 }
@@ -179,6 +214,25 @@ void ARP_Bot::GiveXP(AActor* DamageCauser)
 	}
 
 	BP_GiveXP(DamageCauser);
+}
+
+bool ARP_Bot::TrySpawnLoot()
+{
+	if (!IsValid(LootItemClass))
+	{
+		return false;
+	}
+
+	float SelectorProobability = FMath::RandRange(0.0f, 100.0f);
+	if (SelectorProobability <= LootProbability)
+	{
+		FActorSpawnParameters SpawnParameter;
+		SpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		GetWorld()->SpawnActor<ARP_Item>(LootItemClass, GetActorLocation(), FRotator::ZeroRotator, SpawnParameter);
+	}
+
+	return false;
 }
 
 // Called every frame

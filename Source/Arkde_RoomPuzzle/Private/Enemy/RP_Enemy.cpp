@@ -7,6 +7,7 @@
 #include "Weapons/RP_Projectile.h"
 #include "Weapons/RP_GrenadeLauncher.h"
 #include "Components/RP_HealthComponent.h"
+#include "Items/RP_Item.h"
 
 ARP_Enemy::ARP_Enemy()
 {
@@ -14,6 +15,7 @@ ARP_Enemy::ARP_Enemy()
 	DirectionIndex = 1.0;
 	WaitingTimeOnPathPoint = 1.0f;
 	XPValue = 20.0f;
+	LootProbability = 100.0f;
 }
 
 void ARP_Enemy::BeginPlay()
@@ -29,6 +31,8 @@ void ARP_Enemy::GiveXP(AActor* DamageCauser)
 	if (IsValid(PossiblePlayer) && PossiblePlayer->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
 	{
 		PossiblePlayer->GainUltimateXP(XPValue);
+
+		TrySpawnLoot();
 	}
 
 	ARP_Rifle* PossibleRifle = Cast<ARP_Rifle>(DamageCauser);
@@ -39,6 +43,8 @@ void ARP_Enemy::GiveXP(AActor* DamageCauser)
 		if (IsValid(RifleOwner) && RifleOwner->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
 		{
 			RifleOwner->GainUltimateXP(XPValue);
+
+			TrySpawnLoot();
 		}
 	}
 
@@ -55,9 +61,30 @@ void ARP_Enemy::GiveXP(AActor* DamageCauser)
 			if (IsValid(GrenadeLauncherOwner) && GrenadeLauncherOwner->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
 			{
 				GrenadeLauncherOwner->GainUltimateXP(XPValue);
+
+				TrySpawnLoot();
 			}
 		}
 	}
 
 	BP_GiveXP(DamageCauser);
+}
+
+bool ARP_Enemy::TrySpawnLoot()
+{
+	if (!IsValid(LootItemClass))
+	{
+		return false;
+	}
+
+	float SelectorProobability = FMath::RandRange(0.0f, 100.0f);
+	if (SelectorProobability <= LootProbability)
+	{
+		FActorSpawnParameters SpawnParameter;
+		SpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		GetWorld()->SpawnActor<ARP_Item>(LootItemClass, GetActorLocation(), FRotator::ZeroRotator, SpawnParameter);
+	}
+
+	return false;
 }

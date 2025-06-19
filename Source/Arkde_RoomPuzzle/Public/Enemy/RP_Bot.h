@@ -11,6 +11,7 @@ class ARP_Character;
 class UMaterialInstanceDynamic;
 class UParticleSystem;
 class USphereComponent;
+class ARP_Item;
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Bot : public APawn
@@ -54,6 +55,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bot Ultimate XP")
 	float XPValue;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
+	float LootProbability;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Bot")
 	FVector NextPathPoint;
 
@@ -66,6 +70,9 @@ protected:
 	UParticleSystem* ExplosionEffect;
 
 	FTimerHandle TimerHandleSelfDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
+	TSubclassOf<ARP_Item> LootItemClass;
 
 public:
 	// Sets default values for this pawn's properties
@@ -93,6 +100,8 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_GiveXP(AActor* DamageCauser);
+
+	bool TrySpawnLoot();
 
 public:	
 	// Called every frame

@@ -8,6 +8,8 @@
 #include "Weapons/RP_GrenadeLauncher.h"
 #include "Components/RP_HealthComponent.h"
 #include "Items/RP_Item.h"
+#include "AIModule/Classes/Perception/AISense_Damage.h"
+#include "Enemy/Controller/RP_AIController.h"
 
 ARP_Enemy::ARP_Enemy()
 {
@@ -22,6 +24,9 @@ void ARP_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	MyAiController = Cast<ARP_AIController>(GetController());
+
+	HealthComponent->OnHealthChangeDelegate.AddDynamic(this, &ARP_Enemy::HealthChange);
 	HealthComponent->OnDeadDelegate.AddDynamic(this, &ARP_Enemy::GiveXP);
 }
 
@@ -87,4 +92,26 @@ bool ARP_Enemy::TrySpawnLoot()
 	}
 
 	return false;
+}
+
+void ARP_Enemy::HealthChange(URP_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (!IsValid(MyAiController))
+	{
+		return;
+	}
+	if (CurrentHealthComponent->IsDead())
+	{
+		MyAiController->UnPossess();
+	}
+	else
+	{
+		ARP_Rifle* Rifle = Cast<ARP_Rifle>(DamageCauser);
+		if (IsValid(DamageCauser))
+		{
+			AActor* RifleOwner = Rifle->GetOwner();
+			MyAiController->SetReceiveDamage(true);
+			UAISense_Damage::ReportDamageEvent(GetWorld(), this, RifleOwner, Damage, RifleOwner->GetActorLocation(), FVector::ZeroVector);
+		}
+	}
 }

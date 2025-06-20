@@ -8,6 +8,7 @@
 
 class ARP_PathActor;
 class ARP_Item;
+class ARP_AIController;
 
 /**
  * 
@@ -45,6 +46,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
 	TSubclassOf<ARP_Item> LootItemClass;
 
+	UPROPERTY(BlueprintReadOnly, Category = "AI|Controller")
+	ARP_AIController* MyAiController;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -58,4 +62,15 @@ protected:
 	void BP_GiveXP(AActor* DamageCauser);
 
 	bool TrySpawnLoot();
+
+	UFUNCTION()
+	void HealthChange(URP_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
+public:
+
+	bool GetLoopPath() { return bLoopPath; };
+
+	int GetDirectionIndex() { return DirectionIndex; };
+
+	float GetWaitingTime() { return WaitingTimeOnPathPoint; };
 };

@@ -14,6 +14,7 @@ class UParticleSystem;
 class USphereComponent;
 class ARP_Character;
 class ARP_Item;
+class ARP_HealerSpawner;
 
 UENUM(BlueprintType)
 enum class EHealerState : uint8
@@ -108,6 +109,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
 	TSubclassOf<ARP_Item> LootItemClass;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Spawner")
+	ARP_HealerSpawner* MySpawner;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -159,4 +163,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void SetSpawner(ARP_HealerSpawner* NewSpawner) { MySpawner = NewSpawner; };
 };

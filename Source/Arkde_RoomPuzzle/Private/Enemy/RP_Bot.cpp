@@ -16,6 +16,8 @@
 #include "Weapons/RP_Projectile.h"
 #include "Weapons/RP_GrenadeLauncher.h"
 #include "Items/RP_Item.h"
+#include "Enemy/RP_BotSpawner.h"
+#include "Items/RP_SpawnDesactivator.h"
 
 // Sets default values
 ARP_Bot::ARP_Bot()
@@ -43,7 +45,9 @@ ARP_Bot::ARP_Bot()
 
 	XPValue = 20.0f;
 
-	LootProbability = 100.0f;
+	LootProbability = 70.0f;
+
+	DesactivatorProbability = 25.0f;
 }
 
 // Called when the game starts or when spawned
@@ -154,6 +158,11 @@ void ARP_Bot::SelfDestruction()
 		DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 20, FColor::Red, true, 5.0f, 0, 2.0f);
 	}
 
+	if (IsValid(MySpawner))
+	{
+		MySpawner->NotifyBotDead();
+	}
+
 	Destroy();
 }
 
@@ -218,18 +227,32 @@ void ARP_Bot::GiveXP(AActor* DamageCauser)
 
 bool ARP_Bot::TrySpawnLoot()
 {
-	if (!IsValid(LootItemClass))
+	if (!IsValid(LootItemClass) || !IsValid(DesactivatorClass))
 	{
 		return false;
 	}
 
 	float SelectorProobability = FMath::RandRange(0.0f, 100.0f);
+
 	if (SelectorProobability <= LootProbability)
 	{
 		FActorSpawnParameters SpawnParameter;
 		SpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 		GetWorld()->SpawnActor<ARP_Item>(LootItemClass, GetActorLocation(), FRotator::ZeroRotator, SpawnParameter);
+	}
+	
+	if (SelectorProobability <= DesactivatorProbability && MySpawner->IsSpawnActive())
+	{
+		FActorSpawnParameters SpawnParameter;
+		SpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		ARP_SpawnDesactivator* Key = GetWorld()->SpawnActor<ARP_SpawnDesactivator>(DesactivatorClass, GetActorLocation(), FRotator::ZeroRotator, SpawnParameter);
+		if (IsValid(Key))
+		{
+			Key->SetOwningSpawner(MySpawner);
+			Key->SetIsPick(true);
+		}
 	}
 
 	return false;

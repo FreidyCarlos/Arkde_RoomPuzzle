@@ -12,6 +12,9 @@ class UMaterialInstanceDynamic;
 class UParticleSystem;
 class USphereComponent;
 class ARP_Item;
+class ARP_BotSpawner;
+class ARP_SpawnDesactivator;
+
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Bot : public APawn
@@ -58,6 +61,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
 	float LootProbability;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
+	float DesactivatorProbability;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Bot")
 	FVector NextPathPoint;
 
@@ -73,6 +79,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
 	TSubclassOf<ARP_Item> LootItemClass;
+
+	UPROPERTY(EditAnywhere, Category="Loot System")
+	TSubclassOf<ARP_SpawnDesactivator> DesactivatorClass;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Spawner")
+	ARP_BotSpawner* MySpawner;
 
 public:
 	// Sets default values for this pawn's properties
@@ -106,4 +118,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void SetSpawner(ARP_BotSpawner* NewSpawner) { MySpawner = NewSpawner; };
 };

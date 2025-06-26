@@ -10,6 +10,7 @@
 #include "Items/RP_Item.h"
 #include "AIModule/Classes/Perception/AISense_Damage.h"
 #include "Enemy/Controller/RP_AIController.h"
+#include "Enemy/RP_EnemySpawner.h"
 
 ARP_Enemy::ARP_Enemy()
 {
@@ -102,12 +103,17 @@ void ARP_Enemy::HealthChange(URP_HealthComponent* CurrentHealthComponent, AActor
 	}
 	if (CurrentHealthComponent->IsDead())
 	{
+		if (IsValid(MySpawner))
+		{
+			MySpawner->NotifyEnemyDead();
+		}
+
 		MyAiController->UnPossess();
 	}
 	else
 	{
 		ARP_Rifle* Rifle = Cast<ARP_Rifle>(DamageCauser);
-		if (IsValid(DamageCauser))
+		if (IsValid(Rifle))
 		{
 			AActor* RifleOwner = Rifle->GetOwner();
 			MyAiController->SetReceiveDamage(true);

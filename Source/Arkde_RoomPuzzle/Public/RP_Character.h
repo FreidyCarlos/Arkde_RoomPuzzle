@@ -282,6 +282,8 @@ public:
 
 	bool TryAddHealth(float HealthToAdd);
 
+	bool TryDesactivateBotSpawn(bool DesactivateBotSpawn);
+
 	bool HasKey(FName KeyTag);
 
 	void SetMeleeDetectorCollision(ECollisionEnabled::Type NewCollisionState);

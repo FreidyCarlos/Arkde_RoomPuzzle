@@ -15,6 +15,7 @@
 #include "Weapons/RP_Projectile.h"
 #include "Weapons/RP_GrenadeLauncher.h"
 #include "Items/RP_Item.h"
+#include "Enemy/RP_HealerSpawner.h"
 
 // Sets default values
 ARP_Healer::ARP_Healer()
@@ -172,6 +173,11 @@ void ARP_Healer::Destruction()
     if (IsValid(DeadEffect))
     {
         UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeadEffect, GetActorLocation());
+    }
+
+    if (IsValid(MySpawner))
+    {
+        MySpawner->NotifyBotDead();
     }
 
     Destroy();

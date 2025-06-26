@@ -459,6 +459,11 @@ bool ARP_Character::TryAddHealth(float HealthToAdd)
 	return HealthComponent->TryAddHealth(HealthToAdd);
 }
 
+bool ARP_Character::TryDesactivateBotSpawn(bool DesactivateBotSpawn)
+{
+	return true;
+}
+
 bool ARP_Character::HasKey(FName KeyTag)
 {
 	return DoorKeys.Contains(KeyTag);

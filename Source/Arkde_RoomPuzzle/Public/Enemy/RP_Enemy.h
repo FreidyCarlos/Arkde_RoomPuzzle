@@ -9,6 +9,7 @@
 class ARP_PathActor;
 class ARP_Item;
 class ARP_AIController;
+class ARP_EnemySpawner;
 
 /**
  * 
@@ -22,8 +23,10 @@ public:
 
 	ARP_Enemy();
 
-protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Navigation Path")
+	ARP_PathActor* MyPath;
 
+protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Navigation Path")
 	bool bLoopPath;
@@ -40,14 +43,16 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
 	float LootProbability;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Navigation Path")
-	ARP_PathActor* MyPath;
+	//aqui iba
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
 	TSubclassOf<ARP_Item> LootItemClass;
 
 	UPROPERTY(BlueprintReadOnly, Category = "AI|Controller")
 	ARP_AIController* MyAiController;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Spawner")
+	ARP_EnemySpawner* MySpawner;
 
 protected:
 	// Called when the game starts or when spawned
@@ -73,4 +78,6 @@ public:
 	int GetDirectionIndex() { return DirectionIndex; };
 
 	float GetWaitingTime() { return WaitingTimeOnPathPoint; };
+
+	void SetSpawner(ARP_EnemySpawner* NewSpawner) { MySpawner = NewSpawner; };
 };

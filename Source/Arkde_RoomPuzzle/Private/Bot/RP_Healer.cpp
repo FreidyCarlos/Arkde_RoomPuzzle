@@ -16,6 +16,7 @@
 #include "Weapons/RP_GrenadeLauncher.h"
 #include "Items/RP_Item.h"
 #include "Enemy/RP_HealerSpawner.h"
+#include "Items/RP_HealerSpawnDesactivator.h"
 
 // Sets default values
 ARP_Healer::ARP_Healer()
@@ -44,7 +45,7 @@ ARP_Healer::ARP_Healer()
     PatrolSpeed = 1.0f;
     bIsPatrolling = true;
 
-    HealAmountPerTick = 20.f;
+    HealAmountPerTick = 10.f;
     HealInterval = 1.0f;
     HealerState = EHealerState::Patrolling;
     CurrentTargetHealthComp = nullptr;
@@ -52,7 +53,8 @@ ARP_Healer::ARP_Healer()
 
     XPValue = 20.0;
 
-    LootProbability = 100.0f;
+    LootProbability = 70.0f;
+    DesactivatorProbability = 25.0f;
 }
 
 // Called when the game starts or when spawned
@@ -616,7 +618,7 @@ void ARP_Healer::GiveXP(AActor* DamageCauser)
 
 bool ARP_Healer::TrySpawnLoot()
 {
-    if (!IsValid(LootItemClass))
+    if (!IsValid(LootItemClass) || !IsValid(DesactivatorClass))
     {
         return false;
     }
@@ -628,6 +630,19 @@ bool ARP_Healer::TrySpawnLoot()
         SpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
         GetWorld()->SpawnActor<ARP_Item>(LootItemClass, GetActorLocation(), FRotator::ZeroRotator, SpawnParameter);
+    }
+
+    if (SelectorProobability <= DesactivatorProbability && MySpawner->IsSpawnActive())
+    {
+        FActorSpawnParameters SpawnParameter;
+        SpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+        ARP_HealerSpawnDesactivator* Key = GetWorld()->SpawnActor<ARP_HealerSpawnDesactivator>(DesactivatorClass, GetActorLocation(), FRotator::ZeroRotator, SpawnParameter);
+        if (IsValid(Key))
+        {
+            Key->SetOwningSpawner(MySpawner);
+            Key->SetIsPick(true);
+        }
     }
 
     return false;

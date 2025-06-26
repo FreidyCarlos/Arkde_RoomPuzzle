@@ -8,6 +8,7 @@
 
 class UBillboardComponent;
 class ARP_Healer;
+class UBoxComponent;
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_HealerSpawner : public AActor
@@ -22,6 +23,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UBillboardComponent* SpawnerPathBillboardComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UBoxComponent* ZoneColliderComponent;
 
 protected:
 
@@ -49,6 +53,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void OnOverlapActor(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	void SpawnBot();
 
 	FVector GetSpawnPoint();
@@ -56,4 +63,10 @@ protected:
 public:
 
 	void NotifyBotDead();
+
+	UFUNCTION(BlueprintCallable, Category="Spawner")
+    void SetSpawnActive(bool bActive);
+
+	UFUNCTION(BlueprintCallable, Category="Spawner")
+    bool IsSpawnActive() const { return bIsActive; }
 };

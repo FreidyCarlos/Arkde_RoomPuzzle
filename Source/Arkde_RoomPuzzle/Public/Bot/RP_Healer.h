@@ -15,6 +15,7 @@ class USphereComponent;
 class ARP_Character;
 class ARP_Item;
 class ARP_HealerSpawner;
+class ARP_HealerSpawnDesactivator;
 
 UENUM(BlueprintType)
 enum class EHealerState : uint8
@@ -92,6 +93,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
 	float LootProbability;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
+	float DesactivatorProbability;
+
 	UMaterialInstanceDynamic* HealerMaterial;
 
     FVector PatrolCenter;
@@ -111,6 +115,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Spawner")
 	ARP_HealerSpawner* MySpawner;
+
+	UPROPERTY(EditAnywhere, Category="Loot System")
+	TSubclassOf<ARP_HealerSpawnDesactivator> DesactivatorClass;
 
 protected:
 	// Called when the game starts or when spawned

@@ -14,6 +14,7 @@ class UAnimInstance;
 class URP_HealthComponent ;
 class ARP_GameMode;
 class URP_BurnComponent;
+class URP_GameInstance;
 
 UENUM(Blueprintable)
 enum class ERP_CharacterType : uint8
@@ -214,6 +215,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	ERP_CharacterType CharacterType;
 
+	//Menu
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Levels")
+	FName MainMenuMapName;
+
+	//GameInstance
+	URP_GameInstance* GameInstanceReference;
+
 public:
 	// Sets default values for this character's properties
 	ARP_Character();
@@ -259,6 +267,8 @@ protected:
 	void StartUltimate2();
 
 	void StopUltimate2();
+
+	void GoToMainMenu();
 
 	UFUNCTION()
 	void MakeMeleeDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

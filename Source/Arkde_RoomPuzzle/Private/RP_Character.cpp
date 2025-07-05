@@ -15,6 +15,7 @@
 #include "Core/RP_GameMode.h"
 #include "Components/RP_BurnComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Core/RP_GameInstance.h"
 
 
 // Sets default values
@@ -91,6 +92,8 @@ ARP_Character::ARP_Character()
 
 	MaxUltimateDuration2 = 12.0f;
 	UltimateCollisionDamage = 1000.0f;
+
+	MainMenuMapName = "MainMenuMap";
 }
 
 FVector ARP_Character::GetPawnViewLocation() const//CORRIGE EL INICIO DEL LINETRACE VISUAL EN UNREAL
@@ -131,6 +134,8 @@ void ARP_Character::InitializeReferences()
 	}
 
 	GameModeReference = Cast<ARP_GameMode>(GetWorld()->GetAuthGameMode());
+
+	GameInstanceReference = Cast<URP_GameInstance>(GetWorld()->GetGameInstance());
 }
 
 // Called every frame
@@ -367,6 +372,16 @@ void ARP_Character::StopUltimate2()
 
 }
 
+void ARP_Character::GoToMainMenu()
+{
+	if (IsValid(GameInstanceReference))
+	{
+		GameInstanceReference->SaveData();
+	}
+
+	UGameplayStatics::OpenLevel(GetWorld(), MainMenuMapName);
+}
+
 void ARP_Character::MakeMeleeDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (IsValid(OtherActor))
@@ -447,6 +462,8 @@ void ARP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Ultimate2", IE_Pressed, this, &ARP_Character::StartUltimate2);
 	PlayerInputComponent->BindAction("Ultimate2", IE_Released, this, &ARP_Character::StopUltimate2);
+
+	PlayerInputComponent->BindAction("Exit", IE_Pressed, this, &ARP_Character::GoToMainMenu);
 }
 
 void ARP_Character::AddKey(FName NewKey)

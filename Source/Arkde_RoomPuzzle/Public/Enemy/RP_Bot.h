@@ -14,6 +14,7 @@ class USphereComponent;
 class ARP_Item;
 class ARP_BotSpawner;
 class ARP_SpawnDesactivator;
+class URP_GameInstance;
 
 
 UCLASS()
@@ -85,6 +86,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Spawner")
 	ARP_BotSpawner* MySpawner;
+
+	//GameInstance
+	URP_GameInstance* GameInstanceReference;
 
 public:
 	// Sets default values for this pawn's properties

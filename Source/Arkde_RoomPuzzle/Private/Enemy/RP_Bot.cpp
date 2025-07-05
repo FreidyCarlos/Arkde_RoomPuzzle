@@ -18,6 +18,7 @@
 #include "Items/RP_Item.h"
 #include "Enemy/RP_BotSpawner.h"
 #include "Items/RP_SpawnDesactivator.h"
+#include "Core/RP_GameInstance.h"
 
 // Sets default values
 ARP_Bot::ARP_Bot()
@@ -60,6 +61,8 @@ void ARP_Bot::BeginPlay()
 	{
 		PlayerCharacter = Cast<ARP_Character>(PlayerPawn);
 	}
+
+	GameInstanceReference = Cast<URP_GameInstance>(GetWorld()->GetGameInstance());
 
 	HealthComponent->OnHealthChangeDelegate.AddDynamic(this, &ARP_Bot::TakingDamage);
 	HealthComponent->OnDeadDelegate.AddDynamic(this, &ARP_Bot::GiveXP);
@@ -107,6 +110,11 @@ void ARP_Bot::TakingDamage(URP_HealthComponent* CurrentHealthComponent, AActor* 
 				if (IsValid(RifleOwner) && RifleOwner->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
 				{
 					TrySpawnLoot();
+
+					if (IsValid(GameInstanceReference))
+					{
+						GameInstanceReference->AddEnemyDefeatedToCounter();
+					}
 				}
 			}
 			else
@@ -125,6 +133,11 @@ void ARP_Bot::TakingDamage(URP_HealthComponent* CurrentHealthComponent, AActor* 
 							GrenadeLauncherOwner->GainUltimateXP(XPValue);
 
 							TrySpawnLoot();
+
+							if (IsValid(GameInstanceReference))
+							{
+								GameInstanceReference->AddEnemyDefeatedToCounter();
+							}
 						}
 					}
 				}

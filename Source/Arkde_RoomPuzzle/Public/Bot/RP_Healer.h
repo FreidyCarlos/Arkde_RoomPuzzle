@@ -16,6 +16,7 @@ class ARP_Character;
 class ARP_Item;
 class ARP_HealerSpawner;
 class ARP_HealerSpawnDesactivator;
+class URP_GameInstance;
 
 UENUM(BlueprintType)
 enum class EHealerState : uint8
@@ -118,6 +119,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Loot System")
 	TSubclassOf<ARP_HealerSpawnDesactivator> DesactivatorClass;
+
+	//GameInstance
+	URP_GameInstance* GameInstanceReference;
 
 protected:
 	// Called when the game starts or when spawned

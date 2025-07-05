@@ -17,6 +17,7 @@
 #include "Items/RP_Item.h"
 #include "Enemy/RP_HealerSpawner.h"
 #include "Items/RP_HealerSpawnDesactivator.h"
+#include "Core/RP_GameInstance.h"
 
 // Sets default values
 ARP_Healer::ARP_Healer()
@@ -68,6 +69,8 @@ void ARP_Healer::BeginPlay()
     {
         BotMeshComponent->SetEnableGravity(false);
     }
+
+    GameInstanceReference = Cast<URP_GameInstance>(GetWorld()->GetGameInstance());
 
     HealthComponent->OnHealthChangeDelegate.AddDynamic(this, &ARP_Healer::TakingDamage);
     HealthComponent->OnDeadDelegate.AddDynamic(this, &ARP_Healer::GiveXP);
@@ -157,6 +160,11 @@ void ARP_Healer::TakingDamage(URP_HealthComponent* CurrentHealthComponent, AActo
                     }
                 }
             }
+        }
+
+        if (IsValid(GameInstanceReference))
+        {
+            GameInstanceReference->AddEnemyDefeatedToCounter();
         }
 
         Destruction();

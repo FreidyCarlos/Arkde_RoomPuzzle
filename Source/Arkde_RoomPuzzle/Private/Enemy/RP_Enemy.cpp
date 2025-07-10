@@ -12,6 +12,8 @@
 #include "Enemy/Controller/RP_AIController.h"
 #include "Enemy/RP_EnemySpawner.h"
 #include "Core/RP_GameInstance.h"
+#include "Components/WidgetComponent.h"
+#include "UI/Enemy/RP_EnemyHealthBar.h"
 
 ARP_Enemy::ARP_Enemy()
 {
@@ -20,6 +22,9 @@ ARP_Enemy::ARP_Enemy()
 	WaitingTimeOnPathPoint = 1.0f;
 	XPValue = 20.0f;
 	LootProbability = 100.0f;
+
+	WidgethHealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgethHealthBarComponent"));
+	WidgethHealthBarComponent->SetupAttachment(RootComponent);
 }
 
 void ARP_Enemy::BeginPlay()
@@ -30,6 +35,18 @@ void ARP_Enemy::BeginPlay()
 
 	HealthComponent->OnHealthChangeDelegate.AddDynamic(this, &ARP_Enemy::HealthChange);
 	HealthComponent->OnDeadDelegate.AddDynamic(this, &ARP_Enemy::GiveXP);
+
+	UUserWidget* WidgetObject = WidgethHealthBarComponent->GetUserWidgetObject();
+	if (IsValid(WidgetObject))
+	{
+		EnemyHealthBar = Cast<URP_EnemyHealthBar>(WidgetObject);
+		if (IsValid(EnemyHealthBar))
+		{
+			HideHealthBar();
+			HealthComponent->OnHealthUpdateDelegate.AddDynamic(EnemyHealthBar, &URP_EnemyHealthBar::UpdateHealth);
+			HealthComponent->OnHealthUpdateDelegate.AddDynamic(this, &ARP_Enemy::HandleHealthUpdate);
+		}
+	}
 }
 
 void ARP_Enemy::GiveXP(AActor* DamageCauser)
@@ -102,6 +119,18 @@ void ARP_Enemy::HealthChange(URP_HealthComponent* CurrentHealthComponent, AActor
 	{
 		return;
 	}
+
+	if (bIsShowingHealthBar)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_HideHealthBar);
+	}
+	else
+	{
+		ShowHealthBar();
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_HideHealthBar, this, &ARP_Enemy::HideHealthBar, 1.0f, false);
+
 	if (CurrentHealthComponent->IsDead())
 	{
 		if (IsValid(MySpawner))
@@ -115,6 +144,8 @@ void ARP_Enemy::HealthChange(URP_HealthComponent* CurrentHealthComponent, AActor
 		{
 			GameInstanceReference->AddEnemyDefeatedToCounter();
 		}
+
+		HideHealthBar();
 	}
 	else
 	{
@@ -125,5 +156,49 @@ void ARP_Enemy::HealthChange(URP_HealthComponent* CurrentHealthComponent, AActor
 			MyAiController->SetReceiveDamage(true);
 			UAISense_Damage::ReportDamageEvent(GetWorld(), this, RifleOwner, Damage, RifleOwner->GetActorLocation(), FVector::ZeroVector);
 		}
+		else
+		{
+			ARP_Projectile* PossibleProjectile = Cast<ARP_Projectile>(DamageCauser);
+			if (IsValid(PossibleProjectile))
+			{
+				ARP_GrenadeLauncher* ProjectileCaster = Cast<ARP_GrenadeLauncher>(PossibleProjectile->GetOwner());
+				if (IsValid(ProjectileCaster))
+				{
+					ARP_Character* GrenadeLauncherOwner = Cast<ARP_Character>(ProjectileCaster->GetOwner());
+
+					if (IsValid(GrenadeLauncherOwner) && GrenadeLauncherOwner->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
+					{
+						MyAiController->SetReceiveDamage(true);
+						UAISense_Damage::ReportDamageEvent(GetWorld(), this, GrenadeLauncherOwner, Damage, GrenadeLauncherOwner->GetActorLocation(), FVector::ZeroVector);
+					}
+				}
+			}
+		}
 	}
+}
+
+void ARP_Enemy::HandleHealthUpdate(float CurrentHealth, float MaxHealth)
+{
+	if (bIsShowingHealthBar)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_HideHealthBar);
+	}
+	else
+	{
+		ShowHealthBar();
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_HideHealthBar,this,&ARP_Enemy::HideHealthBar,1.0f,false);
+}
+
+void ARP_Enemy::ShowHealthBar()
+{
+	bIsShowingHealthBar = true;
+	EnemyHealthBar->SetVisibility(ESlateVisibility::Visible);
+}
+
+void ARP_Enemy::HideHealthBar()
+{
+	bIsShowingHealthBar = false;
+	EnemyHealthBar->SetVisibility(ESlateVisibility::Hidden);
 }

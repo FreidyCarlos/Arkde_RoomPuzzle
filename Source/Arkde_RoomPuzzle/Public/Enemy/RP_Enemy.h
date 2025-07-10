@@ -10,6 +10,8 @@ class ARP_PathActor;
 class ARP_Item;
 class ARP_AIController;
 class ARP_EnemySpawner;
+class UWidgetComponent;
+class URP_EnemyHealthBar;
 
 /**
  * 
@@ -28,8 +30,16 @@ public:
 
 protected:
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UWidgetComponent* WidgethHealthBarComponent;
+
+protected:
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Navigation Path")
 	bool bLoopPath;
+
+	UPROPERTY(BlueprintReadOnly, Category = "UI")
+	bool bIsShowingHealthBar;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Navigation Path")
 	int DirectionIndex;
@@ -43,8 +53,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
 	float LootProbability;
 
-	//aqui iba
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot System")
 	TSubclassOf<ARP_Item> LootItemClass;
 
@@ -53,6 +61,11 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Spawner")
 	ARP_EnemySpawner* MySpawner;
+
+	UPROPERTY(BlueprintReadOnly, Category = "UI")
+	URP_EnemyHealthBar* EnemyHealthBar;
+
+	FTimerHandle TimerHandle_HideHealthBar;
 
 protected:
 	// Called when the game starts or when spawned
@@ -71,6 +84,9 @@ protected:
 	UFUNCTION()
 	void HealthChange(URP_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
+	UFUNCTION()
+	void HandleHealthUpdate(float CurrentHealth, float MaxHealth);
+
 public:
 
 	bool GetLoopPath() { return bLoopPath; };
@@ -80,4 +96,8 @@ public:
 	float GetWaitingTime() { return WaitingTimeOnPathPoint; };
 
 	void SetSpawner(ARP_EnemySpawner* NewSpawner) { MySpawner = NewSpawner; };
+
+	void ShowHealthBar();
+
+	void HideHealthBar();
 };

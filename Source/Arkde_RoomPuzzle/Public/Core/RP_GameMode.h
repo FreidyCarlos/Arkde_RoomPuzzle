@@ -8,9 +8,9 @@
 
 class ARP_Character;
 class ARP_SpectatingCamera;
-/**
- * 
- */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnKeyAddedSignature, FName, KeyTag);
+
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_GameMode : public AGameModeBase
 {
@@ -27,6 +27,11 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Spectating Camera")
 	ARP_SpectatingCamera* GameOverCamera;
 
+public:
+
+	UPROPERTY(BlueprintReadOnly)
+	FOnKeyAddedSignature OnKeyAddedDelegate;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -36,6 +41,9 @@ protected:
 	void MoveCameraToSpectatingPoint(ARP_Character* Character, ARP_SpectatingCamera* SpectatingCamera);
 
 public:
+
+	UFUNCTION()
+	void AddKeyToCharacter(ARP_Character* KeyOwner, FName KeyTag);
 
 	UFUNCTION()
 	void Victory(ARP_Character* Character);

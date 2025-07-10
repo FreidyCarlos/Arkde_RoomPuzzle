@@ -329,6 +329,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ERP_CharacterType GetCharacterType() { return CharacterType; };
 
+	URP_HealthComponent* GetHealthComponent() { return HealthComponent; };
+
 protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)

@@ -8,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangeSignature, URP_HealthComponent*, HealthComponent, AActor*, DamagedActor, float, Damage, const class UDamageType*, DamageType, class AController*, InstigatedBy, AActor*, DamageCauser);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeadSignature, AActor*, DamageCauser);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthUpdateSignature, float, CurrentHealth, float, MaxHealth);
 
 UCLASS( ClassGroup=(ROOM), meta=(BlueprintSpawnableComponent) )
 class ARKDE_ROOMPUZZLE_API URP_HealthComponent : public UActorComponent
@@ -34,6 +35,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "HealthComponent")
 	AActor* MyOwner;
 
+	FTimerHandle TimerHandle_UpdateInitialHealth;
+
 public:
 
 	UPROPERTY(BlueprintAssignable)
@@ -41,6 +44,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnDeadSignature OnDeadDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnHealthUpdateSignature OnHealthUpdateDelegate;
 
 	UFUNCTION(BlueprintCallable, Category="Health")
     float GetHealth() const;
@@ -50,6 +56,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Health")
     void SetHealth(float NewHealth);
+
+	void UpdateInitialHealth();
 
 public:	
 	// Sets default values for this component's properties

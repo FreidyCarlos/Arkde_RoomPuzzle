@@ -26,6 +26,8 @@ void URP_HealthComponent::BeginPlay()
 	{
 		MyOwner->OnTakeAnyDamage.AddDynamic(this, &URP_HealthComponent::TakingDamage);
 	}
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_UpdateInitialHealth, this, &URP_HealthComponent::UpdateInitialHealth, 0.2f, false);
 }
 
 bool URP_HealthComponent::TryAddHealth(float HealthToAdd)
@@ -41,6 +43,7 @@ bool URP_HealthComponent::TryAddHealth(float HealthToAdd)
 	}
 
 	Health = FMath::Clamp(Health + HealthToAdd, 0.0f, MaxHealth);
+	OnHealthUpdateDelegate.Broadcast(Health, MaxHealth);
 
 	if (bDebug)
 	{
@@ -76,6 +79,7 @@ void URP_HealthComponent::TakingDamage(AActor* DamagedActor, float Damage, const
 	}
 
 	OnHealthChangeDelegate.Broadcast(this, DamagedActor, Damage, DamageType, InstigatedBy, DamageCauser);
+	OnHealthUpdateDelegate.Broadcast(Health, MaxHealth);
 
 	if (bDebug)
 	{
@@ -95,7 +99,6 @@ float URP_HealthComponent::GetMaxHealth() const
 
 void URP_HealthComponent::SetHealth(float NewHealth)
 {
-	// Si ya está muerto, no resucitar por esta llamada (opcional según diseño)
 	if (bIsDead)
 	{
 		return;
@@ -103,10 +106,15 @@ void URP_HealthComponent::SetHealth(float NewHealth)
 
 	float Clamped = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
 	Health = Clamped;
+	OnHealthUpdateDelegate.Broadcast(Health, MaxHealth);
 
-	// Si llega a 0, marcar muerto (aunque el Healer no debería bajar a 0)
 	if (Health <= 0.f)
 	{
 		bIsDead = true;
 	}
+}
+
+void URP_HealthComponent::UpdateInitialHealth()
+{
+	OnHealthUpdateDelegate.Broadcast(Health, MaxHealth);
 }

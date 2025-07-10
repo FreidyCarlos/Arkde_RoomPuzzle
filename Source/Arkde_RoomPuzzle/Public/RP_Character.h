@@ -16,6 +16,9 @@ class ARP_GameMode;
 class URP_BurnComponent;
 class URP_GameInstance;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUltimateUpdateSignature, float, WCurrentUltimateXP, float, WMaxUltimateXP);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUltimateStatusSignature, bool, bIsAvalaible);
+
 UENUM(Blueprintable)
 enum class ERP_CharacterType : uint8
 {
@@ -223,6 +226,15 @@ protected:
 	URP_GameInstance* GameInstanceReference;
 
 public:
+
+	//UI Ultimate bar
+	UPROPERTY(BlueprintAssignable)
+	FOnUltimateUpdateSignature OnUltimateUpdateDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnUltimateStatusSignature OnUltimateStatusDelegate;
+
+public:
 	// Sets default values for this character's properties
 	ARP_Character();
 
@@ -330,6 +342,13 @@ public:
 	ERP_CharacterType GetCharacterType() { return CharacterType; };
 
 	URP_HealthComponent* GetHealthComponent() { return HealthComponent; };
+
+	//Delegates HUD Ultimate Helpers
+	float GetCurrentUltimateXP() const { return CurrentUltimateXP; }
+
+	float GetMaxUltimateXP() const { return MaxUltimateXP; }
+
+	bool  CanUseUltimate() const { return bCanUseUltimate; }
 
 protected:
 

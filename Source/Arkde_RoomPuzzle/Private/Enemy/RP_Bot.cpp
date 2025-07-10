@@ -130,8 +130,6 @@ void ARP_Bot::TakingDamage(URP_HealthComponent* CurrentHealthComponent, AActor* 
 
 						if (IsValid(GrenadeLauncherOwner) && GrenadeLauncherOwner->GetCharacterType() == ERP_CharacterType::CharacterType_Player)
 						{
-							GrenadeLauncherOwner->GainUltimateXP(XPValue);
-
 							TrySpawnLoot();
 
 							if (IsValid(GameInstanceReference))

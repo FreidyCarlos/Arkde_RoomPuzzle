@@ -6,6 +6,8 @@
 #include "Engine/GameInstance.h"
 #include "RP_GameInstance.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyDefeatedSignature, int, EnemiesDefeated);
+
 /**
  * 
  */
@@ -25,6 +27,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Enemy Data")
 	int EnemiesDefeatedCounter;
+
+public:
+
+	UPROPERTY(BlueprintAssignable)
+	FOnEnemyDefeatedSignature OnEnemyDefeatedDelegate;
 
 public:
 

@@ -110,7 +110,11 @@ protected:
 	bool bIsDashing;
 
 	FTimerHandle DashTimerHandle;
+
 	FTimerHandle DashCooldownTimerHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* DashMontage;
 
 	bool bCanDash;
 
@@ -120,6 +124,14 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
 	ARP_Weapon* CurrentWeapon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+    TSubclassOf<ARP_Weapon> SecondaryWeaponClass;
+
+    bool bUsingPrimaryWeapon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* ShootMontage;
 
 	//Melee
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
@@ -225,6 +237,15 @@ protected:
 	//GameInstance
 	URP_GameInstance* GameInstanceReference;
 
+	//Config Change Weapon
+	UPROPERTY(BlueprintReadOnly, Category = "Melee")
+	bool bIsChangingWeapon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* ChangeWeaponMontage;
+
+	FOnMontageEnded OnChangeWeaponMontageEnded;
+
 public:
 
 	//UI Ultimate bar
@@ -281,6 +302,11 @@ protected:
 	void StopUltimate2();
 
 	void GoToMainMenu();
+
+	void ChangeWaepon();
+
+    UFUNCTION()
+    void HandleChangeWeaponMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	UFUNCTION()
 	void MakeMeleeDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

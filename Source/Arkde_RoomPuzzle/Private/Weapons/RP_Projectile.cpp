@@ -78,8 +78,6 @@ void ARP_Projectile::Explode()
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, ImpactPoint, ImpactRotation);
 	}
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 3.0f);
-
 	TArray<AActor*> IgnoredActors;
 	TArray<AActor*> OverlappingActors;
 
@@ -93,9 +91,12 @@ void ARP_Projectile::Explode()
 		}
 	}
 
-	//Esto lo piden pero no se ve bonito, lo dejo porque es requisito
-	FVector DamageLocation = GetActorLocation();
-	DrawDebugString(GetWorld(), DamageLocation + FVector(0, 0, 100), FString::Printf(TEXT("Damage: %.0f"), ExplosionDamage), nullptr, FColor::Orange, 3.0f);
+	if (bIsDebuging)
+	{
+		FVector DamageLocation = GetActorLocation();
+		DrawDebugString(GetWorld(), DamageLocation + FVector(0, 0, 100), FString::Printf(TEXT("Damage: %.0f"), ExplosionDamage), nullptr, FColor::Orange, 3.0f);
+		DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 3.0f);
+	}
 
 	Destroy();
 }

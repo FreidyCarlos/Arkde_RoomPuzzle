@@ -151,10 +151,12 @@ void ARP_Character::Tick(float DeltaTime)
 
 void ARP_Character::CreateInitialWeapon()
 {
-	if (IsValid(InitialWeaponClass))
+	bUsingPrimaryWeapon = true;
+
+	if (InitialWeaponClass)
 	{
 		CurrentWeapon = GetWorld()->SpawnActor<ARP_Weapon>(InitialWeaponClass, GetActorLocation(), GetActorRotation());
-		if (IsValid(CurrentWeapon))
+		if (CurrentWeapon)
 		{
 			CurrentWeapon->SetCharacterOwner(this);
 			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
@@ -203,6 +205,8 @@ void ARP_Character::StartDash()
 
 	LaunchCharacter(DashDirection * DashDistance, true, true);
 
+	MyAnimInstance->Montage_Play(DashMontage);
+
 	GetWorldTimerManager().SetTimer(DashTimerHandle, this, &ARP_Character::StopDash, DashDuration, false);
 	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &ARP_Character::ResetDash, DashCooldown, false);
 }
@@ -219,13 +223,14 @@ void ARP_Character::ResetDash()
 
 void ARP_Character::StartWeaponAction()
 {
-	if (!bCanUseWeapon || bIsUsingUltimate2)
+	if (!bCanUseWeapon || bIsUsingUltimate2 || bIsChangingWeapon || bIsDashing)
 	{
 		return;
 	}
 
 	if (IsValid(CurrentWeapon))
 	{
+		MyAnimInstance->Montage_Play(ShootMontage);
 		CurrentWeapon->StartAction();
 
 		if (bIsUsingUltimate)
@@ -382,6 +387,44 @@ void ARP_Character::GoToMainMenu()
 	UGameplayStatics::OpenLevel(GetWorld(), MainMenuMapName);
 }
 
+void ARP_Character::ChangeWaepon()
+{
+	bIsChangingWeapon = true;
+
+	if (IsValid(MyAnimInstance) && IsValid(ChangeWeaponMontage))
+	{
+		MyAnimInstance->Montage_Play(ChangeWeaponMontage);
+		OnChangeWeaponMontageEnded.BindUObject(this, &ARP_Character::HandleChangeWeaponMontageEnded);
+		MyAnimInstance->Montage_SetEndDelegate(OnChangeWeaponMontageEnded, ChangeWeaponMontage);
+	}
+}
+
+void ARP_Character::HandleChangeWeaponMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+
+	if (IsValid(CurrentWeapon))
+	{
+		CurrentWeapon->Destroy();
+		CurrentWeapon = nullptr;
+	}
+
+	bUsingPrimaryWeapon = !bUsingPrimaryWeapon;
+
+	TSubclassOf<ARP_Weapon> ToSpawn = bUsingPrimaryWeapon ? InitialWeaponClass : SecondaryWeaponClass;
+
+	if (ToSpawn)
+	{
+		CurrentWeapon = GetWorld()->SpawnActor<ARP_Weapon>(ToSpawn, GetActorLocation(), GetActorRotation());
+		if (CurrentWeapon)
+		{
+			CurrentWeapon->SetCharacterOwner(this);
+			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		}
+	}
+	bIsChangingWeapon = false;
+	OnChangeWeaponMontageEnded.Unbind();
+}
+
 void ARP_Character::MakeMeleeDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (IsValid(OtherActor))
@@ -464,6 +507,8 @@ void ARP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Ultimate2", IE_Released, this, &ARP_Character::StopUltimate2);
 
 	PlayerInputComponent->BindAction("Exit", IE_Pressed, this, &ARP_Character::GoToMainMenu);
+
+	PlayerInputComponent->BindAction("ChangeWeapon", IE_Pressed, this, &ARP_Character::ChangeWaepon);
 }
 
 void ARP_Character::AddKey(FName NewKey)

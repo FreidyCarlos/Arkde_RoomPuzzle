@@ -19,6 +19,9 @@ class ARKDE_ROOMPUZZLE_API ARP_Projectile : public AActor
 
 protected:
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
+	bool bIsDebuging;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USphereComponent* ProjectileCollision;
 

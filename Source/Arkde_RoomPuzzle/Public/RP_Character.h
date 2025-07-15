@@ -15,6 +15,7 @@ class URP_HealthComponent ;
 class ARP_GameMode;
 class URP_BurnComponent;
 class URP_GameInstance;
+class URP_HUDWeaponIcon;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUltimateUpdateSignature, float, WCurrentUltimateXP, float, WMaxUltimateXP);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUltimateStatusSignature, bool, bIsAvalaible);
@@ -30,6 +31,8 @@ UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Character : public ACharacter
 {
 	GENERATED_BODY()
+
+
 
 protected:
 
@@ -246,6 +249,7 @@ protected:
 
 	FOnMontageEnded OnChangeWeaponMontageEnded;
 
+
 public:
 
 	//UI Ultimate bar
@@ -255,11 +259,21 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnUltimateStatusSignature OnUltimateStatusDelegate;
 
+
 public:
 	// Sets default values for this character's properties
 	ARP_Character();
 
 	virtual FVector GetPawnViewLocation() const override;
+
+	//HUD Changed Weapon
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponChangedSignature, bool, bUsingPrimary);
+
+	UPROPERTY(BlueprintAssignable, Category = "Weapon")
+    FOnWeaponChangedSignature OnWeaponChanged;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+    bool IsUsingPrimaryWeapon() const { return bUsingPrimaryWeapon; }
 
 protected:
 	// Called when the game starts or when spawned

@@ -94,6 +94,8 @@ ARP_Character::ARP_Character()
 	UltimateCollisionDamage = 1000.0f;
 
 	MainMenuMapName = "MainMenuMap";
+
+	bUsingPrimaryWeapon = true;
 }
 
 FVector ARP_Character::GetPawnViewLocation() const//CORRIGE EL INICIO DEL LINETRACE VISUAL EN UNREAL
@@ -389,6 +391,9 @@ void ARP_Character::GoToMainMenu()
 
 void ARP_Character::ChangeWaepon()
 {
+	bUsingPrimaryWeapon = !bUsingPrimaryWeapon;
+	OnWeaponChanged.Broadcast(bUsingPrimaryWeapon);
+
 	bIsChangingWeapon = true;
 
 	if (IsValid(MyAnimInstance) && IsValid(ChangeWeaponMontage))
@@ -401,14 +406,16 @@ void ARP_Character::ChangeWaepon()
 
 void ARP_Character::HandleChangeWeaponMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
+	if (bInterrupted)
+	{
+		OnWeaponChanged.Broadcast(bUsingPrimaryWeapon);
+	}
 
 	if (IsValid(CurrentWeapon))
 	{
 		CurrentWeapon->Destroy();
 		CurrentWeapon = nullptr;
 	}
-
-	bUsingPrimaryWeapon = !bUsingPrimaryWeapon;
 
 	TSubclassOf<ARP_Weapon> ToSpawn = bUsingPrimaryWeapon ? InitialWeaponClass : SecondaryWeaponClass;
 

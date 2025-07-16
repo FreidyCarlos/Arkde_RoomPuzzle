@@ -8,6 +8,7 @@
 
 class UDamageType;
 class ACharacter;
+class USoundCue;
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Weapon : public AActor
@@ -30,6 +31,9 @@ protected:
 	TSubclassOf<UDamageType> DamageType;
 
 	ACharacter* CurrentOwnerCharacter;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
+	USoundCue* ShotSound;
 
 protected:
 	// Called when the game starts or when spawned
@@ -56,4 +60,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Health")
     void InvulnerableState(bool bNewInvulnerable);
+
+	UFUNCTION(BlueprintCallable)
+	void PlaySound(USoundCue* SoundCue, bool bIs3D = false, FVector SoundLocation = FVector::ZeroVector);
 };

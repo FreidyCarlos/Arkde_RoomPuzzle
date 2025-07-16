@@ -10,6 +10,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "RP_Character.h"
+#include "Sound/SoundCue.h"
+
 
 // Sets default values
 ARP_Projectile::ARP_Projectile()
@@ -31,7 +33,6 @@ ARP_Projectile::ARP_Projectile()
 	ProjectileMovementComponent->MaxSpeed = 3000.0f;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = false;
-
 
 	ExplosionDelay = 2.5f;
 	ExplosionRadius = 130.0f;
@@ -97,6 +98,7 @@ void ARP_Projectile::Explode()
 		DrawDebugString(GetWorld(), DamageLocation + FVector(0, 0, 100), FString::Printf(TEXT("Damage: %.0f"), ExplosionDamage), nullptr, FColor::Orange, 3.0f);
 		DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 3.0f);
 	}
+	PlaySound(ExplosionAudio);
 
 	Destroy();
 }
@@ -106,4 +108,21 @@ void ARP_Projectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }	
+
+void ARP_Projectile::PlaySound(USoundCue* SoundCue, bool bIs3D /*= false*/, FVector SoundLocation /*= FVector::ZeroVector*/)
+{
+	if (!IsValid(SoundCue))
+	{
+		return;
+	}
+
+	if (bIs3D)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundCue, SoundLocation);
+	}
+	else
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), SoundCue);
+	}
+}
 

@@ -3,6 +3,8 @@
 
 #include "Weapons/RP_Weapon.h"
 #include "GameFramework/Character.h"
+#include "Sound/SoundCue.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ARP_Weapon::ARP_Weapon()
@@ -30,6 +32,7 @@ void ARP_Weapon::Tick(float DeltaTime)
 void ARP_Weapon::StartAction()
 {
 	BP_StartAction();
+	PlaySound(ShotSound);
 }
 
 void ARP_Weapon::StopAction()
@@ -51,3 +54,21 @@ void ARP_Weapon::InvulnerableState(bool bNewInvulnerable)
 	bInvulnerableState = bNewInvulnerable;
 
 }
+
+void ARP_Weapon::PlaySound(USoundCue* SoundCue, bool bIs3D /*= false*/, FVector SoundLocation /*= FVector::ZeroVector*/)
+{
+	if (!IsValid(SoundCue))
+	{
+		return;
+	}
+
+	if (bIs3D)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundCue, SoundLocation);
+	}
+	else
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), SoundCue);
+	}
+}
+

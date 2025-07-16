@@ -11,6 +11,8 @@ class UProjectileMovementComponent;
 class USphereComponent;
 class UParticleSystem;
 class ARP_Character;
+class USoundCue;
+
 
 UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Projectile : public AActor
@@ -51,6 +53,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "References")
 	ARP_Character* PlayerCharacter;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
+	USoundCue* ExplosionAudio;
+
 public:	
 	// Sets default values for this actor's properties
 	ARP_Projectile();
@@ -67,5 +72,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintCallable)
+	void PlaySound(USoundCue* SoundCue, bool bIs3D = false, FVector SoundLocation = FVector::ZeroVector);
 
 };

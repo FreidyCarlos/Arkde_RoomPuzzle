@@ -16,6 +16,7 @@ class ARP_GameMode;
 class URP_BurnComponent;
 class URP_GameInstance;
 class URP_HUDWeaponIcon;
+class UAudioComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUltimateUpdateSignature, float, WCurrentUltimateXP, float, WMaxUltimateXP);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUltimateStatusSignature, bool, bIsAvalaible);
@@ -31,8 +32,6 @@ UCLASS()
 class ARKDE_ROOMPUZZLE_API ARP_Character : public ACharacter
 {
 	GENERATED_BODY()
-
-
 
 protected:
 
@@ -56,6 +55,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	URP_HealthComponent* HealthComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UAudioComponent* StepSoundComponent;
 
 protected:
 
@@ -389,6 +391,8 @@ public:
 	float GetMaxUltimateXP() const { return MaxUltimateXP; }
 
 	bool  CanUseUltimate() const { return bCanUseUltimate; }
+
+	void PlayStepSound();
 
 protected:
 

@@ -16,6 +16,7 @@
 #include "Components/RP_BurnComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Core/RP_GameInstance.h"
+#include "Components/AudioComponent.h"
 
 
 // Sets default values
@@ -70,6 +71,9 @@ ARP_Character::ARP_Character()
 	MeleeDetectorComponent3->SetCollisionResponseToAllChannels(ECR_Ignore);  // Ignorar todas las colisiones por defecto
 	MeleeDetectorComponent3->SetCollisionResponseToChannel(COLLISION_ULTIMATE2, ECR_Overlap);
 	MeleeDetectorComponent3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	StepSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("StepSoundComponent"));
+	StepSoundComponent->SetupAttachment(RootComponent);
 
 	MeleeDamage = 10.0f;
 	
@@ -683,4 +687,8 @@ void ARP_Character::SetInvulnerable(bool bNewInvulnerable)
     }
 }
 
+void ARP_Character::PlayStepSound()
+{
+	StepSoundComponent->Play();
+}
 

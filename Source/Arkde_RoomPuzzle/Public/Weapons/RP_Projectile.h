@@ -12,6 +12,7 @@ class USphereComponent;
 class UParticleSystem;
 class ARP_Character;
 class USoundCue;
+class UAudioComponent;
 
 
 UCLASS()
@@ -53,7 +54,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "References")
 	ARP_Character* PlayerCharacter;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Audio")
 	USoundCue* ExplosionAudio;
 
 public:	
@@ -67,13 +68,12 @@ protected:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	void Explode(); 
+	void Explode();
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	void PlaySound(USoundCue* SoundCue, bool bIs3D = false, FVector SoundLocation = FVector::ZeroVector);
-
+	void PlaySound();
 };

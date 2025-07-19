@@ -17,6 +17,7 @@ class URP_BurnComponent;
 class URP_GameInstance;
 class URP_HUDWeaponIcon;
 class UAudioComponent;
+class USoundCue;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUltimateUpdateSignature, float, WCurrentUltimateXP, float, WMaxUltimateXP);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUltimateStatusSignature, bool, bIsAvalaible);
@@ -58,6 +59,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UAudioComponent* StepSoundComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UAudioComponent* VoiceSoundComponent;
 
 protected:
 
@@ -251,6 +255,18 @@ protected:
 
 	FOnMontageEnded OnChangeWeaponMontageEnded;
 
+	//Audio
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
+	USoundCue* HurtSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
+	USoundCue* DeadSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
+	USoundCue* UltimateSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
+	USoundCue* UltimateSound2;
 
 public:
 
@@ -393,6 +409,8 @@ public:
 	bool  CanUseUltimate() const { return bCanUseUltimate; }
 
 	void PlayStepSound();
+
+	void PlayVoiceSound(USoundCue* VoiceSound);
 
 protected:
 

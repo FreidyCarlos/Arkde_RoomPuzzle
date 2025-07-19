@@ -17,6 +17,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Core/RP_GameInstance.h"
 #include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
 
 
 // Sets default values
@@ -74,6 +75,9 @@ ARP_Character::ARP_Character()
 
 	StepSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("StepSoundComponent"));
 	StepSoundComponent->SetupAttachment(RootComponent);
+
+	VoiceSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("VoiceSoundComponent"));
+	VoiceSoundComponent->SetupAttachment(RootComponent);
 
 	MeleeDamage = 10.0f;
 	
@@ -328,6 +332,8 @@ void ARP_Character::StartUltimate()
 
 		bCanUseUltimate = false;
 
+		PlayVoiceSound(UltimateSound);
+
 		if (IsValid(MyAnimInstance) && IsValid(UltimateMontage))
 		{
 			GetCharacterMovement()->MaxWalkSpeed = 0.0f;
@@ -362,6 +368,8 @@ void ARP_Character::StartUltimate2()
 		bCanUseUltimate = false;
 
 		SetInvulnerable(true);
+
+		PlayVoiceSound(UltimateSound2);
 
 		if (IsValid(MyAnimInstance) && IsValid(UltimateMontage2))
 		{
@@ -471,6 +479,10 @@ void ARP_Character::MakeUltimate2Damage(UPrimitiveComponent* OverlappedComponent
 
 void ARP_Character::OnHealthChange(URP_HealthComponent* CurrentHealthComponent, AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
+	if (!HealthComponent->IsDead())
+	{
+		PlayVoiceSound(HurtSound);
+	}
 
 	if (CurrentHealthComponent->IsDead())
 	{
@@ -478,6 +490,7 @@ void ARP_Character::OnHealthChange(URP_HealthComponent* CurrentHealthComponent, 
 
 		if (GetCharacterType() == ERP_CharacterType::CharacterType_Player)
 		{
+			PlayVoiceSound(DeadSound);
 			if (IsValid(GameModeReference))
 				GameModeReference->GameOver(this);
 		}
@@ -605,6 +618,7 @@ void ARP_Character::UpdateUltimateDuration(float Value)
 		}
 		CurrentUltimateXP = 0.0f;
 		BP_StopUltimate();
+		VoiceSoundComponent->Stop();
 	}
 }
 
@@ -649,6 +663,7 @@ void ARP_Character::UpdateUltimateDuration2(float Value)
 		}
 		CurrentUltimateXP = 0.0f;
 		BP_StopUltimate2();
+		VoiceSoundComponent->Stop();
 	}
 }
 
@@ -690,5 +705,16 @@ void ARP_Character::SetInvulnerable(bool bNewInvulnerable)
 void ARP_Character::PlayStepSound()
 {
 	StepSoundComponent->Play();
+}
+
+void ARP_Character::PlayVoiceSound(USoundCue* VoiceSound)
+{
+	if (!IsValid(VoiceSound))
+	{
+		return;
+	}
+
+	VoiceSoundComponent->SetSound(VoiceSound);
+	VoiceSoundComponent->Play();
 }
 

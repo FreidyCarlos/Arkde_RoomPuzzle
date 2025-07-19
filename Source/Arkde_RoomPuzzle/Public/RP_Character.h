@@ -268,6 +268,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
 	USoundCue* UltimateSound2;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Audio")
+	USoundCue* ChangeWeaponAudio;
+
+	UPROPERTY(VisibleAnywhere, Category="Audio")
+	UAudioComponent* ChangeWeaponAudioComp;
+
 public:
 
 	//UI Ultimate bar

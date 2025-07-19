@@ -79,6 +79,10 @@ ARP_Character::ARP_Character()
 	VoiceSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("VoiceSoundComponent"));
 	VoiceSoundComponent->SetupAttachment(RootComponent);
 
+	ChangeWeaponAudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("ChangeWeaponAudioComp"));
+	ChangeWeaponAudioComp->SetupAttachment(RootComponent);
+	ChangeWeaponAudioComp->bAutoActivate = false;
+
 	MeleeDamage = 10.0f;
 	
 
@@ -403,6 +407,17 @@ void ARP_Character::GoToMainMenu()
 
 void ARP_Character::ChangeWaepon()
 {
+	if (ChangeWeaponAudioComp->IsPlaying())
+	{
+		ChangeWeaponAudioComp->Stop();
+	}
+
+	if (ChangeWeaponAudio)
+	{
+		ChangeWeaponAudioComp->SetSound(ChangeWeaponAudio);
+		ChangeWeaponAudioComp->Play();
+	}
+
 	bUsingPrimaryWeapon = !bUsingPrimaryWeapon;
 	OnWeaponChanged.Broadcast(bUsingPrimaryWeapon);
 

@@ -503,9 +503,10 @@ void ARP_Character::OnHealthChange(URP_HealthComponent* CurrentHealthComponent, 
 	{
 		CurrentHealthComponent->OnHealthChangeDelegate.RemoveDynamic(this, &ARP_Character::OnHealthChange);
 
+		PlayVoiceSound(DeadSound);
+
 		if (GetCharacterType() == ERP_CharacterType::CharacterType_Player)
 		{
-			PlayVoiceSound(DeadSound);
 			if (IsValid(GameModeReference))
 				GameModeReference->GameOver(this);
 		}

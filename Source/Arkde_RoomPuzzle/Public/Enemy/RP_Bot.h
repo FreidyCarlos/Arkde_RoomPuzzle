@@ -15,6 +15,8 @@ class ARP_Item;
 class ARP_BotSpawner;
 class ARP_SpawnDesactivator;
 class URP_GameInstance;
+class UAudioComponent;
+class USoundCue;
 
 
 UCLASS()
@@ -32,6 +34,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	URP_HealthComponent* HealthComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UAudioComponent* TimerSoundComponent;
 
 protected:
 
@@ -90,6 +95,10 @@ protected:
 	//GameInstance
 	URP_GameInstance* GameInstanceReference;
 
+	//Audio
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
+	USoundCue* ExplosionSound;
+
 public:
 	// Sets default values for this pawn's properties
 	ARP_Bot();
@@ -118,6 +127,10 @@ protected:
 	void BP_GiveXP(AActor* DamageCauser);
 
 	bool TrySpawnLoot();
+
+	void PlayTimerSound();
+
+	void PlayExplosionSound();
 
 public:	
 	// Called every frame

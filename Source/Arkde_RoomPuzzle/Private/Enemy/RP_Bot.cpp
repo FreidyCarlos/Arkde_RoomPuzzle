@@ -19,6 +19,9 @@
 #include "Enemy/RP_BotSpawner.h"
 #include "Items/RP_SpawnDesactivator.h"
 #include "Core/RP_GameInstance.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ARP_Bot::ARP_Bot()
@@ -38,6 +41,9 @@ ARP_Bot::ARP_Bot()
 	SelfDestructionDetectorComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 	SelfDestructionDetectorComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	SelfDestructionDetectorComponent->SetSphereRadius(150.0f);
+
+	TimerSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("TimerSoundComponent"));
+	TimerSoundComponent->SetupAttachment(RootComponent);
 
 	MinDistanceToTarget = 100.0f;
 	ForceMagnitude = 500.0f;
@@ -174,6 +180,8 @@ void ARP_Bot::SelfDestruction()
 		MySpawner->NotifyBotDead();
 	}
 
+	PlayExplosionSound();
+
 	Destroy();
 }
 
@@ -194,6 +202,7 @@ void ARP_Bot::StartCountDown(UPrimitiveComponent* OverlappedComponent, AActor* O
 
 void ARP_Bot::SelfDamage()
 {
+	PlayTimerSound();
 	UGameplayStatics::ApplyDamage(this, 20.0f, GetInstigatorController(), nullptr, nullptr);
 }
 
@@ -267,6 +276,21 @@ bool ARP_Bot::TrySpawnLoot()
 	}
 
 	return false;
+}
+
+void ARP_Bot::PlayTimerSound()
+{
+	TimerSoundComponent->Play();
+}
+
+void ARP_Bot::PlayExplosionSound()
+{
+	if (!IsValid(ExplosionSound))
+	{
+		return;
+	}
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());
 }
 
 // Called every frame

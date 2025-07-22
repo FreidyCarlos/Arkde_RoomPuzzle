@@ -17,6 +17,8 @@ class ARP_Item;
 class ARP_HealerSpawner;
 class ARP_HealerSpawnDesactivator;
 class URP_GameInstance;
+class UAudioComponent;
+class USoundCue;
 
 UENUM(BlueprintType)
 enum class EHealerState : uint8
@@ -54,6 +56,9 @@ protected:
 	UParticleSystem* HealingEffect;
 
 	UParticleSystemComponent* ActiveHealingEmitterComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UAudioComponent* HealingSoundComponent;
 
 protected:
 
@@ -123,6 +128,10 @@ protected:
 	//GameInstance
 	URP_GameInstance* GameInstanceReference;
 
+	//Audio
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
+	USoundCue* DeadSound;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -170,6 +179,10 @@ protected:
 	void BP_GiveXP(AActor* DamageCauser);
 
 	bool TrySpawnLoot();
+
+	void PlayHealingSound();
+
+	void StopHealingSound();
 
 public:	
 	// Called every frame

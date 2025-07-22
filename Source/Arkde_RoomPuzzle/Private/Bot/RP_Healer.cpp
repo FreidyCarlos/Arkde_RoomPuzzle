@@ -18,6 +18,9 @@
 #include "Enemy/RP_HealerSpawner.h"
 #include "Items/RP_HealerSpawnDesactivator.h"
 #include "Core/RP_GameInstance.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ARP_Healer::ARP_Healer()
@@ -40,6 +43,9 @@ ARP_Healer::ARP_Healer()
     HealingSphere->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Overlap);
     HealRadius = 600.0f;
     HealingSphere->SetSphereRadius(HealRadius);
+
+    HealingSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("HealingSoundComponent"));
+    HealingSoundComponent->SetupAttachment(RootComponent);
 
     PatrolAngle = 0.0f;
     PatrolRadius = 250.0f;
@@ -187,6 +193,8 @@ void ARP_Healer::Destruction()
     {
         MySpawner->NotifyBotDead();
     }
+
+    UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeadSound, GetActorLocation());
 
     Destroy();
 }
@@ -364,6 +372,7 @@ void ARP_Healer::StartHealing()
             );
         }
     }
+    PlayHealingSound();
 }
 
 void ARP_Healer::StopHealing()
@@ -377,6 +386,7 @@ void ARP_Healer::StopHealing()
         ActiveHealingEmitterComponent->DestroyComponent();
         ActiveHealingEmitterComponent = nullptr;
     }
+    StopHealingSound();
 }
 
 void ARP_Healer::HealTick()
@@ -652,4 +662,17 @@ bool ARP_Healer::TrySpawnLoot()
     }
 
     return false;
+}
+
+void ARP_Healer::PlayHealingSound()
+{
+    if (HealingSoundComponent && !HealingSoundComponent->IsPlaying())
+    {
+        HealingSoundComponent->Play();
+    }
+}
+
+void ARP_Healer::StopHealingSound()
+{
+    HealingSoundComponent->Stop();
 }

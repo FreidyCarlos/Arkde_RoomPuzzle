@@ -470,8 +470,8 @@ void ARP_Character::MakeMeleeDamage(UPrimitiveComponent* OverlappedComponent, AA
 		ARP_Character* MeleeTarget = Cast<ARP_Character>(OtherActor);
 		if (IsValid(MeleeTarget))
 		{
-			bool bPlayerAttackingEnemy = GetCharacterType() == ERP_CharacterType::CharacterType_Player && MeleeTarget->GetCharacterType() == ERP_CharacterType::CharacterType_Enemy;
-			bool bEnemyAttackingPlayer = GetCharacterType() == ERP_CharacterType::CharacterType_Enemy && MeleeTarget->GetCharacterType() == ERP_CharacterType::CharacterType_Player;
+			const bool bPlayerAttackingEnemy = GetCharacterType() == ERP_CharacterType::CharacterType_Player && MeleeTarget->GetCharacterType() == ERP_CharacterType::CharacterType_Enemy;
+			const bool bEnemyAttackingPlayer = GetCharacterType() == ERP_CharacterType::CharacterType_Enemy && MeleeTarget->GetCharacterType() == ERP_CharacterType::CharacterType_Player;
 
 			if (bPlayerAttackingEnemy || bEnemyAttackingPlayer)
 			{

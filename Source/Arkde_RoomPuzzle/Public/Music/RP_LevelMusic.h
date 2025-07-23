@@ -25,6 +25,9 @@ protected:
 
 protected:
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Music")
+	FName AlertParamName;
+
 	UPROPERTY(BlueprintReadOnly, Category = "References")
 	ARP_GameMode* GameModeRedeference;
 	
@@ -38,4 +41,7 @@ protected:
 
 	UFUNCTION()
 	void StopLevelMusic();
+
+	UFUNCTION()
+	void ChangeLevelMusic(bool bIsAlert);
 };
